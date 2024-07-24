@@ -89,7 +89,7 @@ function ProductTwo(props) {
             ""
           )}
           {product.discount > 0 ? (
-            product.variations.length === 0 ? (
+            product.variants.length === 0 ? (
               <label className="product-label label-sale">
                 {product.discount}% OFF
               </label>
@@ -102,7 +102,7 @@ function ProductTwo(props) {
         </div>
 
         <div className="product-action-vertical">
-          {product.variations.length > 0 ? (
+          {product.variants.length > 0 ? (
             <ALink
               href={`/product/default/${product.id}`}
               className="btn-product-icon btn-cart"
@@ -170,8 +170,8 @@ function ProductTwo(props) {
 
         <div className="product-price">
           {product.regular_price !== product.sale_price ? (
-            product.variations.length === 0 ||
-            (product.variations.length > 0 && !product.variations[0].price) ? (
+            product.variants.length === 0 ||
+            (product.variants.length > 0 && !product.variants[0].price) ? (
               <>
                 <ins className="new-price">
                   Rs.{toDecimal(product.sale_price)}

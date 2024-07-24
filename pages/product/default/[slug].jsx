@@ -12,7 +12,8 @@ import { getAllProducts } from "../../../server/axiosApi";
 
 export async function getStaticPaths() {
   // Fetch a list of all product IDs from your backend (adjust the API endpoint as needed)
-  const products = await getAllProducts();
+  const productsRes = await getAllProducts();
+  const products = productsRes?.products
   // Extract IDs from products and convert them to strings
   const paths = products.map((product) => ({
     params: { slug: String(product.id) },
@@ -25,24 +26,30 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const slug = params.slug;
   try {
-    const product = await getProduct(slug);
-    // Fetch related products
-    const relatedProducts = await Promise.all(
-      product.related_ids.map(async (id) => await getProduct(id))
-    );
+    const productRes = await getProduct(slug);
+    const product = productRes?.product;
+    
+    // Ensure related_ids is defined and is an array before mapping
+    const relatedProducts = product && Array.isArray(product.related_ids)
+      ? await Promise.all(
+          product.related_ids.map(async (id) => await getProduct(id))
+        )
+      : [];
+
     return { props: { product, relatedProducts } };
   } catch (error) {
     console.error("Error fetching product:", error);
     return {
-      props: { product: null },
+      props: { product: null, relatedProducts: [] },
       notFound: true,
     };
   }
 }
 
+
 function ProductDefault({ product, relatedProducts }) {
   const [loaded, setLoadingState] = useState(true);
-
+console.log("product from default page", product)
   useEffect(() => {
     if (product) {
       setLoadingState(false);
@@ -71,8 +78,8 @@ function ProductDefault({ product, relatedProducts }) {
             </div>
             {console.log("this is single product", product)}
             <DescOne product={product} />
-
-            <RelatedProducts products={relatedProducts} />
+            {relatedProducts &&
+              <RelatedProducts products={relatedProducts} />}
           </div>
         </div>
       ) : (

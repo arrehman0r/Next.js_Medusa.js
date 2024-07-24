@@ -8,8 +8,9 @@ import { getStaticProps } from "~/data/index";
 import { getAllCategories } from "~/server/axiosApi";
 
 export async function getStaticPaths() {
-  const categories = await getAllCategories(); // Implement this function to fetch category IDs
+  const categoriesRes = await getAllCategories(); // Implement this function to fetch category IDs
 
+  const categories = categoriesRes.product_categories
   // Generate the paths based on the category IDs
   const paths = categories.map(({ id }) => ({
     params: { categoryId: String(id) },

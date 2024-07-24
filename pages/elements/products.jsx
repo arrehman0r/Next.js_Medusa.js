@@ -25,7 +25,8 @@ import { getAllProducts } from '~/server/axiosApi';
 
 export async function getStaticProps() {
     try {
-      const products = await getAllProducts();
+      const productsRes = await getAllProducts();
+      const products = productsRes?.products
       return { props: { products } };
     } catch (error) {
       console.error('Error fetching products:', error);
