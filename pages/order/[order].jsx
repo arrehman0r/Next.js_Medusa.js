@@ -115,8 +115,8 @@ function Order( ) {
                             <tbody>
                                 {
                                     orderDetails?.line_items?.map( item =>
-                                        <tr key={ 'order-' + item.name }>
-                                            <td className="product-name">{ item.name } <span> <i className="fas fa-times"></i> { item.quantity }</span></td>
+                                        <tr key={ 'order-' + item.title }>
+                                            <td className="product-name">{ item.title } <span> <i className="fas fa-times"></i> { item.quantity }</span></td>
                                             <td className="product-price">Rs.{ toDecimal( item.quantity * item.price ) }</td>
                                         </tr>
                                     ) }

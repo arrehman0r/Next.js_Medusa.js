@@ -21,9 +21,9 @@ function cartReducer( state = initialState, action ) {
         case actionTypes.ADD_TO_CART:
             let tmpProduct = { ...action.payload.product };
 
-            if ( state.data.findIndex( item => item.name === action.payload.product.name ) > -1 ) {
+            if ( state.data.findIndex( item => item.title === action.payload.product.title ) > -1 ) {
                 let tmpData = state.data.reduce( ( acc, cur ) => {
-                    if ( cur.name === tmpProduct.name ) {
+                    if ( cur.title === tmpProduct.title ) {
                         acc.push( {
                             ...cur,
                             qty: parseInt( cur.qty ) + parseInt( tmpProduct.qty )
@@ -42,7 +42,7 @@ function cartReducer( state = initialState, action ) {
 
         case actionTypes.REMOVE_FROM_CART:
             let cart = state.data.reduce( ( cartAcc, product ) => {
-                if ( product.name !== action.payload.product.name ) {
+                if ( product.title !== action.payload.product.title ) {
                     cartAcc.push( product );
                 }
                 return cartAcc;

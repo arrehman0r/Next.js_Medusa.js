@@ -105,7 +105,7 @@ console.log("product from default page", product)
                           relatedProducts.map( ( item ) =>
                                 <div className="product-loading-overlay" key={ 'popup-skel-' + item }>
 
-                                  {item.name}
+                                  {item.title}
                                 </div>
                             )
                         }

@@ -77,8 +77,8 @@ function Order( props ) {
                             <tbody>
                                 {
                                     cartList.map( item =>
-                                        <tr key={ 'order-' + item.name }>
-                                            <td className="product-name">{ item.name } <span> <i className="fas fa-times"></i> { item.qty }</span></td>
+                                        <tr key={ 'order-' + item.title }>
+                                            <td className="product-name">{ item.title } <span> <i className="fas fa-times"></i> { item.qty }</span></td>
                                             <td className="product-price">${ toDecimal( item.qty * item.price ) }</td>
                                         </tr>
                                     ) }

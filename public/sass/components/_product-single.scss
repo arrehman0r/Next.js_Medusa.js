@@ -353,7 +353,7 @@
   }
 
   // variation - list box type
-  .product-variations {
+  .product-variants {
     > a:not(.size-guide) {
       @include css(width, product-single, variation, width);
       @include css(height, product-single, variation, height);
@@ -419,7 +419,7 @@
   }
 
   // select box type
-  &.product-variations {
+  &.product-variants {
     line-height: 37px;
   }
   .select-box::before {
@@ -436,7 +436,7 @@
   }
 
   // list box type
-  .product-variations {
+  .product-variants {
     display: block;
     margin-top: -3px;
     margin-bottom: -3px;
@@ -503,7 +503,7 @@
     margin-right: 2rem;
   }
   // list box type
-  .product-variations {
+  .product-variants {
     margin-bottom: 7px;
   }
 }

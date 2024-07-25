@@ -112,20 +112,20 @@ function SearchForm() {
                 <div className="live-search-list bg-white">
                     { search.length > 2 && data && data.products.data.map( ( product, index ) => (
                         <ALink href={ `/product/default/${ product.id }` } className="autocomplete-suggestion" key={ `search-result-${ index }` }>
-                            <LazyLoadImage effect="opacity" src={    product.images[ 0 ].src } width={ 40 } height={ 40 } alt="product" />
-                            <div className="search-name" dangerouslySetInnerHTML={ removeXSSAttacks( matchEmphasize( product.name ) ) }></div>
+                            <LazyLoadImage effect="opacity" src={    product.images[ 0 ].url } width={ 40 } height={ 40 } alt="product" />
+                            <div className="search-name" dangerouslySetInnerHTML={ removeXSSAttacks( matchEmphasize( product.title ) ) }></div>
 
                             <span className="search-price">
                                 {
-                                    product.sale_price !== product.regular_price ?
+                                    product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount ?
                                         product.variants.length === 0 ?
                                             <>
-                                                <span className="new-price mr-1">Rs.{ toDecimal( product.sale_price ) }</span>
-                                                <span className="old-price">Rs.{ toDecimal( product.regular_price ) }</span>
+                                                <span className="new-price mr-1">Rs.{ toDecimal( product.variants[0]?.prices[1]?.amount ) }</span>
+                                                <span className="old-price">Rs.{ toDecimal( product.variants[0]?.prices[0]?.amount ) }</span>
                                             </>
                                             :
-                                            < span className="new-price">Rs.{ toDecimal( product.sale_price ) } – Rs.{ toDecimal( product.regular_price ) }</span>
-                                        : <span className="new-price">Rs.{ toDecimal( product.sale_price ) }</span>
+                                            < span className="new-price">Rs.{ toDecimal( product.variants[0]?.prices[1]?.amount ) } – Rs.{ toDecimal( product.variants[0]?.prices[0]?.amount ) }</span>
+                                        : <span className="new-price">Rs.{ toDecimal( product.variants[0]?.prices[1]?.amount ) }</span>
                                 }
                             </span>
                         </ALink>

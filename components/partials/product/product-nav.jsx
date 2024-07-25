@@ -16,7 +16,7 @@ export default function ProductNav ( props ) {
                                     <span className="product-nav-popup">
                                 <img src={   product.prev.images[ 0 ].url }
                                     alt="product thumbnail" width="110" height="123" />
-                                <span className="product-name">{ product.prev.name }</span>
+                                <span className="product-name">{ product.prev.title }</span>
                             </span>
                         </ALink>
                     </li> : ""
@@ -30,7 +30,7 @@ export default function ProductNav ( props ) {
                             <span className="product-nav-popup">
                                 <img src={   product.next.images[ 0 ].url }
                                     alt="product thumbnail" width="110" height="123" />
-                                <span className="product-name">{ product.next.name }</span>
+                                <span className="product-name">{ product.next.title }</span>
                             </span>
                         </ALink>
                     </li> : ""

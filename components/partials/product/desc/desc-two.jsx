@@ -13,15 +13,15 @@ export default function DescTwo( props ) {
     if ( product.variants.length > 0 ) {
         if ( product.variants[ 0 ].size )
             product.variants.forEach( item => {
-                if ( sizes.findIndex( size => size.name === item.size.name ) === -1 ) {
-                    sizes.push( { name: item.size.name, value: item.size.size } );
+                if ( sizes.findIndex( size => size.title === item.size.title ) === -1 ) {
+                    sizes.push( { name: item.size.title, value: item.size.size } );
                 }
             } );
 
         if ( product.variants[ 0 ].color ) {
             product.variants.forEach( item => {
-                if ( colors.findIndex( color => color.name === item.color.name ) === -1 )
-                    colors.push( { name: item.color.name, value: item.color.color } );
+                if ( colors.findIndex( color => color.title === item.color.title ) === -1 )
+                    colors.push( { name: item.color.title, value: item.color.color } );
             } );
         }
     }
@@ -78,8 +78,8 @@ export default function DescTwo( props ) {
                                 <li><label>Categories:</label>
                                     <p>
                                         { product.categories.map( ( item, index ) => (
-                                            <React.Fragment key={ item.name + '-' + index }>
-                                                { item.name }
+                                            <React.Fragment key={ item.title + '-' + index }>
+                                                { item.title }
                                                 { index < product.categories.length - 1 ? ', ' : "" }
                                             </React.Fragment>
                                         ) ) }
@@ -92,8 +92,8 @@ export default function DescTwo( props ) {
                                 <li><label>Brands:</label>
                                     <p>
                                         { product.brands.map( ( item, index ) => (
-                                            <React.Fragment key={ item.name + '-' + index }>
-                                                { item.name }
+                                            <React.Fragment key={ item.title + '-' + index }>
+                                                { item.title }
                                                 { index < product.brands.length - 1 ? ', ' : "" }
                                             </React.Fragment>
                                         ) ) }
@@ -106,8 +106,8 @@ export default function DescTwo( props ) {
                                 <li><label>Color:</label>
                                     <p>
                                         { colors.map( ( item, index ) => (
-                                            <React.Fragment key={ item.name + '-' + index }>
-                                                { item.name }
+                                            <React.Fragment key={ item.title + '-' + index }>
+                                                { item.title }
                                                 { index < colors.length - 1 ? ', ' : "" }
                                             </React.Fragment>
                                         ) ) }
@@ -121,8 +121,8 @@ export default function DescTwo( props ) {
                                     <p>
                                         {
                                             sizes.map( ( item, index ) => (
-                                                <React.Fragment key={ item.name + '-' + index }>
-                                                    { item.name }
+                                                <React.Fragment key={ item.title + '-' + index }>
+                                                    { item.title }
                                                     { index < sizes.length - 1 ? ', ' : "" }
                                                 </React.Fragment>
                                             ) ) }
@@ -279,7 +279,7 @@ export default function DescTwo( props ) {
                             <h3 className="title title-simple text-left text-normal">
                                 {
                                     product.reviews > 0 ? "Add a Review" :
-                                        "Be The First To Review “" + product.name + "”"
+                                        "Be The First To Review “" + product.title + "”"
                                 }
                             </h3>
                             <p>Your email address will not be published. Required fields are marked *</p>

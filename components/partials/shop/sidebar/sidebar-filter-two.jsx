@@ -110,7 +110,7 @@ function SidebarFilterTwo() {
                                             className={ containsAttrInUrl( 'sizes', item.id ) ? 'active' : '' }
                                             key={ item + ' - ' + index }
                                         >
-                                            <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, sizes: getUrlForAttrs( 'sizes', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.name }
+                                            <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, sizes: getUrlForAttrs( 'sizes', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.title }
                                             </ALink>
                                         </li>
                                     )
@@ -128,7 +128,7 @@ function SidebarFilterTwo() {
                                             className={ containsAttrInUrl( 'colors', item.id ) ? 'active' : '' }
                                             key={ item + ' - ' + index }
                                         >
-                                            <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, colors: getUrlForAttrs( 'colors', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.name }
+                                            <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, colors: getUrlForAttrs( 'colors', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.title }
                                             </ALink>
                                         </li>
                                     )
@@ -168,7 +168,7 @@ function SidebarFilterTwo() {
                             <div className="widget-body pt-2">
                                 {
                                     filterData.tag.map( ( item, index ) =>
-                                        <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, tag: getUrlForAttrs( 'tag', item.id ), type: router.query.type ? router.query.type : null } } } className={ `${ containsAttrInUrl( 'tag', item.id ) ? 'active' : '' } tag` } key={ "tag-" + index }>{ item.name }
+                                        <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, tag: getUrlForAttrs( 'tag', item.id ), type: router.query.type ? router.query.type : null } } } className={ `${ containsAttrInUrl( 'tag', item.id ) ? 'active' : '' } tag` } key={ "tag-" + index }>{ item.title }
                                         </ALink>
                                     )
                                 }

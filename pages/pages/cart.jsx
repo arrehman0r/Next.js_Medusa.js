@@ -18,7 +18,7 @@ function Cart(props) {
 
     const onChangeQty = (name, qty) => {
         setCartItems(cartItems.map(item => {
-            return item.name === name ? { ...item, qty: qty } : item
+            return item.title === name ? { ...item, qty: qty } : item
         }));
     }
 
@@ -64,18 +64,18 @@ function Cart(props) {
                                             <tbody>
                                                 {
                                                     cartItems.map(item =>
-                                                        <tr key={'cart' + item.name}>
+                                                        <tr key={'cart' + item.title}>
                                                             <td className="product-thumbnail">
                                                                 <figure>
                                                                     <ALink href={'/product/default/' + item.id}>
-                                                                        <img src={item.images[0].src} width="100" height="100"
+                                                                        <img src={item.images[0].url} width="100" height="100"
                                                                             alt="product" />
                                                                     </ALink>
                                                                 </figure>
                                                             </td>
                                                             <td className="product-name">
                                                                 <div className="product-name-section">
-                                                                    <ALink href={'/product/default/' + item.id}>{item.name}</ALink>
+                                                                    <ALink href={'/product/default/' + item.id}>{item.title}</ALink>
                                                                 </div>
                                                             </td>
                                                             <td className="product-subtotal">
@@ -83,7 +83,7 @@ function Cart(props) {
                                                             </td>
 
                                                             <td className="product-quantity">
-                                                                <Quantity qty={item.qty} max={item.stock_quantity} onChangeQty={qty => onChangeQty(item.name, qty)} />
+                                                                <Quantity qty={item.qty} max={item.stock_quantity} onChangeQty={qty => onChangeQty(item.title, qty)} />
                                                             </td>
                                                             <td className="product-price">
                                                                 <span className="amount">Rs.{toDecimal(item.price * item.qty)}</span>

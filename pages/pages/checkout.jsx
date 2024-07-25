@@ -460,15 +460,15 @@ const email = customerDetails.email || "info@partyshope.com";
                           </thead>
                           <tbody>
                             {cartList.map((item) => (
-                              <tr key={item.name}>
+                              <tr key={item.title}>
                                 <td className="product-name">
-                                  {item.name}{" "}
+                                  {item.title}{" "}
                                   <span className="product-quantity">
                                     ×&nbsp;{item.qty}
                                   </span>
                                 </td>
                                 <td className="product-total text-body">
-                                  Rs.{toDecimal(item.price * item.qty)}
+                                  Rs.{toDecimal(item.sale_price * item.qty)}
                                 </td>
                               </tr>
                             ))}

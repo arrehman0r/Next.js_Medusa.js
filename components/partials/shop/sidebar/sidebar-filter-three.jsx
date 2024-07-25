@@ -98,7 +98,7 @@ function SidebarFilterThree() {
                                     key={ item + ' - ' + index }
                                     onClick={ selectFilterHandler }
                                 >
-                                    <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, sizes: getUrlForAttrs( 'sizes', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.name }
+                                    <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, sizes: getUrlForAttrs( 'sizes', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.title }
                                     </ALink>
                                 </li>
                             )
@@ -117,7 +117,7 @@ function SidebarFilterThree() {
                                     key={ item + ' - ' + index }
                                     onClick={ selectFilterHandler }
                                 >
-                                    <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, colors: getUrlForAttrs( 'colors', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.name }
+                                    <ALink href={ { pathname: router.pathname, query: { ...query, page: 1, colors: getUrlForAttrs( 'colors', item.id ), type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.title }
                                     </ALink>
                                 </li>
                             )

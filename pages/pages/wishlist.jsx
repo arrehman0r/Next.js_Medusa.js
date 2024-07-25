@@ -53,39 +53,39 @@ function Wishlist(props) {
                                     <tbody className="wishlist-items-wrapper">
                                         {
                                             wishlist.map((item) =>
-                                                <tr key={'wishlist-' + item.name}>
+                                                <tr key={'wishlist-' + item.title}>
                                                     <td className="product-thumbnail">
                                                         <ALink href={'/product/default/' + item.id}>
                                                             <figure>
-                                                                <img src={item.images[0].src} width="100" height="100"
+                                                                <img src={item.images[0].url} width="100" height="100"
                                                                     alt="product" />
                                                             </figure>
                                                         </ALink>
                                                     </td>
                                                     <td className="product-name">
-                                                        <ALink href={'/product/default/' + item.id}>{item.name}</ALink>
+                                                        <ALink href={'/product/default/' + item.id}>{item.title}</ALink>
                                                     </td>
                                                     <td className="product-price">
                                                         {
-                                                            item.sale_price !== item.regular_price ?
-                                                                < span className="amount">Rs.{toDecimal(item.sale_price)} – Rs.{toDecimal(item.regular_price)}</span>
-                                                                : item.discount > 0 && item.variations.length > 0 ?
+                                                            item.variants[0]?.prices[1]?.amount !== item.variants[0]?.prices[0]?.amount ?
+                                                                < span className="amount">Rs.{toDecimal(item.variants[0]?.prices[1]?.amount)}</span>
+                                                                : item.discount > 0 && item.variants.length > 0 ?
                                                                     <>
-                                                                        <span className="amount">Rs.{toDecimal(item.salePrice)}</span>
-                                                                        <span className="amount">Rs.{toDecimal(item.price)}</span>
+                                                                        <span className="amount">Rs.{toDecimal(item.variants[0]?.prices[1]?.amount )}</span>
+                                                                        <span className="amount">Rs.{toDecimal(item.variants[0]?.prices[0]?.amount )}</span>
                                                                     </>
-                                                                    : <span className="amount">Rs.{toDecimal(item.sale_price)}</span>
+                                                                    : <span className="amount">Rs.{toDecimal(item.variants[0]?.prices[1]?.amount)}</span>
                                                         }
                                                     </td>
                                                     <td className="product-stock-status">
-                                                        <span className={item.stock_quantity
-                                                            > 0 ? 'wishlist-in-stock' : 'wishlist-out-stock'}>{item.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                                                        <span className={item.variants[0]?.inventory_quantity
+                                                            > 0 ? 'wishlist-in-stock' : 'wishlist-out-stock'}>{item.variants[0]?.inventory_quantity > 0 ? 'In Stock' : 'Out of Stock'}</span>
                                                     </td>
                                                     <td className="product-add-to-cart">
                                                         {
-                                                            item.stock_quantity
+                                                            item.variants[0]?.inventory_quantity
                                                                 > 0 ?
-                                                                item.variations.length > 0 ?
+                                                                item.variants.length > 0 ?
                                                                     <ALink href={'/product/default/' + item.id} className="btn-product btn-primary"><span>Select options</span></ALink>
                                                                     :
                                                                     <a href="#" className="btn-product btn-primary" onClick={(e) => moveToCart(e, item)}><span>Add to Cart</span></a>

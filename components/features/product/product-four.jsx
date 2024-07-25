@@ -58,7 +58,7 @@ function ProductFour( props ) {
 
     const addToCartHandler = ( e ) => {
         e.preventDefault();
-        addToCart( { ...product, qty: 1, price: product.sale_price } );
+        addToCart( { ...product, qty: 1, price: product.variants[0]?.prices[1]?.amount } );
     }
 
     const mouseOverHandler = ( e ) => {
@@ -78,7 +78,7 @@ function ProductFour( props ) {
                 <ALink href={ `/product/default/${ product.id }` }>
                     <LazyLoadImage
                         alt="product"
-                        src={    product.images[ 0 ].src }
+                        src={    product.images[ 0 ].url }
                         threshold={ 500 }
                         effect="opacity"
                         width="300"
@@ -118,9 +118,9 @@ function ProductFour( props ) {
                     {
                         product.categories ?
                             product.categories.map( ( item, index ) => (
-                                <React.Fragment key={ item.name + '-' + index }>
+                                <React.Fragment key={ item.title + '-' + index }>
                                     <ALink href={ { pathname: '/shop', query: { category: item.id } } }>
-                                        { item.name }
+                                        { item.title }
                                         { index < product.categories.length - 1 ? ', ' : "" }
                                     </ALink>
                                 </React.Fragment>
@@ -129,20 +129,20 @@ function ProductFour( props ) {
                 </div>
 
                 <h3 className="product-name">
-                    <ALink href={ `/product/default/${ product.id }` }>{ product.name }</ALink>
+                    <ALink href={ `/product/default/${ product.id }` }>{ product.title }</ALink>
                 </h3>
 
                 <div className="product-price">
                     {
-                        product.sale_price !== product.regular_price ?
+                        product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount ?
                             product.variants.length === 0 || ( product.variants.length > 0 && !product.variants[ 0 ].price ) ?
                                 <>
-                                    <ins className="new-price">Rs.{ toDecimal( product.sale_price ) }</ins>
-                                    <del className="old-price">Rs.{ toDecimal( product.regular_price ) }</del>
+                                    <ins className="new-price">Rs.{ toDecimal( product.variants[0]?.prices[1]?.amount ) }</ins>
+                                    <del className="old-price">Rs.{ toDecimal( product.variants[0]?.prices[0]?.amount ) }</del>
                                 </>
                                 :
-                                < del className="new-price">Rs.{ toDecimal( product.sale_price ) } – Rs.{ toDecimal( product.regular_price ) }</del>
-                            : <ins className="new-price">Rs.{ toDecimal( product.sale_price ) }</ins>
+                                < del className="new-price">Rs.{ toDecimal( product.variants[0]?.prices[1]?.amount ) } – Rs.{ toDecimal( product.variants[0]?.prices[0]?.amount ) }</del>
+                            : <ins className="new-price">Rs.{ toDecimal( product.variants[0]?.prices[1]?.amount ) }</ins>
                     }
                 </div>
             </div>

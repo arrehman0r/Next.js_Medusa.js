@@ -55,7 +55,7 @@ function CartMenu( props ) {
                                         <div className="product product-cart" key={ 'cart-menu-product-' + index }>
                                             <figure className="product-media pure-media">
                                                 <ALink href={ '/product/default/' + item.id }>
-                                                    <img src={  item.images[0].src } alt="product" width="80"
+                                                    <img src={  item.images[0].url } alt="product" width="80"
                                                         height="88" />
                                                 </ALink>
                                                 <button className="btn btn-link btn-close" onClick={ () => { removeCart( item ) } }>
@@ -63,10 +63,11 @@ function CartMenu( props ) {
                                                 </button>
                                             </figure>
                                             <div className="product-detail">
-                                                <ALink href={ '/product/default/' + item.id } className="product-name">{ item.name }</ALink>
+                                                <ALink href={ '/product/default/' + item.id } className="product-name">{ item.title }</ALink>
                                                 <div className="price-box">
                                                     <span className="product-quantity">{ item.qty }</span>
-                                                    <span className="product-price">Rs.{ toDecimal( item.price ) }</span>
+                                                    <span className="product-price">Rs.{ toDecimal( item.sale_price ) }</span>
+                                                    {console.log("item.price", item)}
                                                 </div>
                                             </div>
                                         </div>
@@ -75,6 +76,7 @@ function CartMenu( props ) {
 
                             <div className="cart-total">
                                 <label>Subtotal:</label>
+                                {console.log("cartList",cartList)}
                                 <span className="price">Rs.{ toDecimal( getTotalPrice( cartList ) ) }</span>
                             </div>
 

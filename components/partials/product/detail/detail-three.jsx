@@ -28,20 +28,20 @@ function DetailOne( props ) {
 
     // decide if the product is wishlisted
     let isWishlisted, colors = [], sizes = [];
-    isWishlisted = wishlist.findIndex( item => item.id === product.data.slug ) > -1 ? true : false;
+    isWishlisted = wishlist.findIndex( item => item.id === product.slug ) > -1 ? true : false;
 
-    if ( product.data && product.data.variants.length > 0 ) {
-        if ( product.data.variants[ 0 ].size )
-            product.data.variants.forEach( item => {
-                if ( sizes.findIndex( size => size.name === item.size.name ) === -1 ) {
-                    sizes.push( { name: item.size.name, value: item.size.size } );
+    if ( product.data && product.variants.length > 0 ) {
+        if ( product.variants[ 0 ].size )
+            product.variants.forEach( item => {
+                if ( sizes.findIndex( size => size.title === item.size.title ) === -1 ) {
+                    sizes.push( { name: item.size.title, value: item.size.size } );
                 }
             } );
 
-        if ( product.data.variants[ 0 ].color ) {
-            product.data.variants.forEach( item => {
-                if ( colors.findIndex( color => color.name === item.color.name ) === -1 )
-                    colors.push( { name: item.color.name, value: item.color.color } );
+        if ( product.variants[ 0 ].color ) {
+            product.variants.forEach( item => {
+                if ( colors.findIndex( color => color.title === item.color.title ) === -1 )
+                    colors.push( { name: item.color.title, value: item.color.color } );
             } );
         }
     }
@@ -52,10 +52,10 @@ function DetailOne( props ) {
     }, [ product ] )
 
     useEffect( () => {
-        if ( product.data.variants.length > 0 ) {
-            if ( ( curSize !== 'null' && curColor !== 'null' ) || ( curSize === 'null' && product.data.variants[ 0 ].size === null && curColor !== 'null' ) || ( curColor === 'null' && product.data.variants[ 0 ].color === null && curSize !== 'null' ) ) {
+        if ( product.variants.length > 0 ) {
+            if ( ( curSize !== 'null' && curColor !== 'null' ) || ( curSize === 'null' && product.variants[ 0 ].size === null && curColor !== 'null' ) || ( curColor === 'null' && product.variants[ 0 ].color === null && curSize !== 'null' ) ) {
                 setCartActive( true );
-                setCurIndex( product.data.variants.findIndex( item => ( item.size !== null && item.color !== null && item.color.name === curColor && item.size.name === curSize ) || ( item.size === null && item.color.name === curColor ) || ( item.color === null && item.size.name === curSize ) ) );
+                setCurIndex( product.variants.findIndex( item => ( item.size !== null && item.color !== null && item.color.title === curColor && item.size.title === curSize ) || ( item.size === null && item.color.title === curColor ) || ( item.color === null && item.size.title === curSize ) ) );
             } else {
                 setCartActive( false );
             }
@@ -85,43 +85,43 @@ function DetailOne( props ) {
     }
 
     const toggleColorHandler = ( color ) => {
-        if ( !isDisabled( color.name, curSize ) ) {
-            if ( curColor === color.name ) {
+        if ( !isDisabled( color.title, curSize ) ) {
+            if ( curColor === color.title ) {
                 setCurColor( 'null' );
             } else {
-                setCurColor( color.name );
+                setCurColor( color.title );
             }
         }
     }
 
     const toggleSizeHandler = ( size ) => {
-        if ( !isDisabled( curColor, size.name ) ) {
-            if ( curSize === size.name ) {
+        if ( !isDisabled( curColor, size.title ) ) {
+            if ( curSize === size.title ) {
                 setCurSize( 'null' );
             } else {
-                setCurSize( size.name );
+                setCurSize( size.title );
             }
         }
     }
 
     const addToCartHandler = () => {
-        if ( product.data.stock > 0 && cartActive ) {
-            if ( product.data.variants.length > 0 ) {
-                let tmpName = product.data.name, tmpPrice;
+        if ( product.stock > 0 && cartActive ) {
+            if ( product.variants.length > 0 ) {
+                let tmpName = product.title, tmpPrice;
                 tmpName += curColor !== 'null' ? '-' + curColor : '';
                 tmpName += curSize !== 'null' ? '-' + curSize : '';
 
-                if ( product.data.sale_price === product.data.regular_price ) {
-                    tmpPrice = product.data.sale_price;
-                } else if ( !product.data.variants[ 0 ].price && product.data.discount > 0 ) {
-                    tmpPrice = product.data.sale_price;
+                if ( product.variants[0]?.prices[1]?.amount === product.variants[0]?.prices[0]?.amount ) {
+                    tmpPrice = product.variants[0]?.prices[1]?.amount;
+                } else if ( !product.variants[ 0 ].price && product.discount > 0 ) {
+                    tmpPrice = product.variants[0]?.prices[1]?.amount;
                 } else {
-                    tmpPrice = product.data.variants[ curIndex ].regular_price ? product.data.variants[ curIndex ].regular_price : product.data.variants[ curIndex ].price;
+                    tmpPrice = product.variants[ curIndex ].variants[0]?.prices[0]?.amount ? product.variants[ curIndex ].variants[0]?.prices[0]?.amount : product.variants[ curIndex ].price;
                 }
 
                 addToCart( { ...product.data, name: tmpName, qty: quantity, price: tmpPrice } );
             } else {
-                addToCart( { ...product.data, qty: quantity, price: product.data.sale_price } );
+                addToCart( { ...product.data, qty: quantity, price: product.variants[0]?.prices[1]?.amount } );
             }
         }
     }
@@ -135,14 +135,14 @@ function DetailOne( props ) {
         if ( color === 'null' || size === 'null' ) return false;
 
         if ( sizes.length === 0 ) {
-            return product.data.variants.findIndex( item => item.color.name === curColor ) === -1;
+            return product.variants.findIndex( item => item.color.title === curColor ) === -1;
         }
 
         if ( colors.length === 0 ) {
-            return product.data.variants.findIndex( item => item.size.name === curSize ) === -1;
+            return product.variants.findIndex( item => item.size.title === curSize ) === -1;
         }
 
-        return product.data.variants.findIndex( item => item.color.name === color && item.size.name === size ) === -1;
+        return product.variants.findIndex( item => item.color.title === color && item.size.title === size ) === -1;
     }
 
     function changeQty( qty ) {
@@ -161,18 +161,18 @@ function DetailOne( props ) {
                 <ProductNav product={ product } />
             </div>
 
-            <h2 className="product-name">{ product.data.name }</h2>
+            <h2 className="product-name">{ product.title }</h2>
 
             <div className='product-meta'>
-                SKU: <span className='product-sku'>{ product.data.sku }</span>
+                SKU: <span className='product-sku'>{ product.sku }</span>
                 CATEGORIES: <span className='product-brand'>
                     {
-                        product.data.categories.map( ( item, index ) =>
-                            <React.Fragment key={ item.name + '-' + index }>
+                        product.categories.map( ( item, index ) =>
+                            <React.Fragment key={ item.title + '-' + index }>
                                 <ALink href={ { pathname: '/shop', query: { category: item.id } } }>
-                                    { item.name }
+                                    { item.title }
                                 </ALink>
-                                { index < product.data.categories.length - 1 ? ', ' : '' }
+                                { index < product.categories.length - 1 ? ', ' : '' }
                             </React.Fragment>
                         ) }
                 </span>
@@ -180,53 +180,53 @@ function DetailOne( props ) {
 
             <div className="product-price">
                 {
-                    product.data.sale_price !== product.data.regular_price ?
-                        product.data.variants.length === 0 || ( product.data.variants.length > 0 && !product.data.variants[ 0 ].price ) ?
+                    product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount ?
+                        product.variants.length === 0 || ( product.variants.length > 0 && !product.variants[ 0 ].price ) ?
                             <>
-                                <ins className="new-price">${ toDecimal( product.data.sale_price ) }</ins>
-                                <del className="old-price">${ toDecimal( product.data.regular_price ) }</del>
+                                <ins className="new-price">${ toDecimal( product.variants[0]?.prices[1]?.amount ) }</ins>
+                                <del className="old-price">${ toDecimal( product.variants[0]?.prices[0]?.amount ) }</del>
                             </>
                             :
-                            < del className="new-price">${ toDecimal( product.data.sale_price ) } – ${ toDecimal( product.data.regular_price ) }</del>
-                        : <ins className="new-price">${ toDecimal( product.data.sale_price ) }</ins>
+                            < del className="new-price">${ toDecimal( product.variants[0]?.prices[1]?.amount ) } – ${ toDecimal( product.variants[0]?.prices[0]?.amount ) }</del>
+                        : <ins className="new-price">${ toDecimal( product.variants[0]?.prices[1]?.amount ) }</ins>
                 }
             </div>
 
             {
-                product.data.sale_price !== product.data.regular_price && product.data.variants.length === 0 ?
+                product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount && product.variants.length === 0 ?
                     <Countdown type={ 2 } /> : ''
             }
 
             <div className="ratings-container">
                 <div className="ratings-full">
-                    <span className="ratings" style={ { width: 20 * product.data.ratings + '%' } }></span>
-                    <span className="tooltiptext tooltip-top">{ toDecimal( product.data.ratings ) }</span>
+                    <span className="ratings" style={ { width: 20 * product.ratings + '%' } }></span>
+                    <span className="tooltiptext tooltip-top">{ toDecimal( product.ratings ) }</span>
                 </div>
 
-                <ALink href="#" className="rating-reviews">( { product.data.reviews } reviews )</ALink>
+                <ALink href="#" className="rating-reviews">( { product.reviews } reviews )</ALink>
             </div>
 
-            <p className="product-short-desc">{ product.data.short_description }</p>
+            <p className="product-short-desc">{ product.short_description }</p>
 
             {
-                product && product.data.variants.length > 0 ?
+                product && product.variants.length > 0 ?
                     <>
                         {
-                            product.data.variants[ 0 ].color ?
+                            product.variants[ 0 ].color ?
                                 <div className='product-form product-color'>
                                     <label>Color:</label>
 
                                     <div className="product-variations">
                                         {
                                             colors.map( item =>
-                                                <ALink href="#" className={ `color ${ curColor === item.name ? 'active' : '' } ${ isDisabled( item.name, curSize ) ? 'disabled' : '' }` } key={ "color-" + item.name } style={ { backgroundColor: `${ item.value }` } } onClick={ ( e ) => toggleColorHandler( item ) }></ALink> )
+                                                <ALink href="#" className={ `color ${ curColor === item.title ? 'active' : '' } ${ isDisabled( item.title, curSize ) ? 'disabled' : '' }` } key={ "color-" + item.title } style={ { backgroundColor: `${ item.value }` } } onClick={ ( e ) => toggleColorHandler( item ) }></ALink> )
                                         }
                                     </div>
                                 </div> : ''
                         }
 
                         {
-                            product.data.variants[ 0 ].size ?
+                            product.variants[ 0 ].size ?
                                 <div className='product-form product-size mb-0 pb-2'>
                                     <label>Size:</label>
 
@@ -234,7 +234,7 @@ function DetailOne( props ) {
                                         <div className="product-variations">
                                             {
                                                 sizes.map( item =>
-                                                    <ALink href="#" className={ `size ${ curSize === item.name ? 'active' : '' } ${ isDisabled( curColor, item.name ) ? 'disabled' : '' }` } key={ "size-" + item.name } onClick={ ( e ) => toggleSizeHandler( item ) }>{ item.value }</ALink> )
+                                                    <ALink href="#" className={ `size ${ curSize === item.title ? 'active' : '' } ${ isDisabled( curColor, item.title ) ? 'disabled' : '' }` } key={ "size-" + item.title } onClick={ ( e ) => toggleSizeHandler( item ) }>{ item.value }</ALink> )
                                             }
                                         </div>
 
@@ -254,14 +254,14 @@ function DetailOne( props ) {
                                         curIndex > -1 ?
                                             <div className="single-product-price">
                                                 {
-                                                    product.data.variants[ curIndex ].price ?
-                                                        product.data.variants[ curIndex ].regular_price ?
+                                                    product.variants[ curIndex ].price ?
+                                                        product.variants[ curIndex ].variants[0]?.prices[0]?.amount ?
                                                             <div className="product-price mb-0">
-                                                                <ins className="new-price">${ toDecimal( product.data.variants[ curIndex ].regular_price ) }</ins>
-                                                                <del className="old-price">${ toDecimal( product.data.variants[ curIndex ].price ) }</del>
+                                                                <ins className="new-price">${ toDecimal( product.variants[ curIndex ].variants[0]?.prices[0]?.amount ) }</ins>
+                                                                <del className="old-price">${ toDecimal( product.variants[ curIndex ].price ) }</del>
                                                             </div>
                                                             : <div className="product-price mb-0">
-                                                                <ins className="new-price">${ toDecimal( product.data.variants[ curIndex ].price ) }</ins>
+                                                                <ins className="new-price">${ toDecimal( product.variants[ curIndex ].price ) }</ins>
                                                             </div>
                                                         : ""
                                                 }
@@ -280,8 +280,8 @@ function DetailOne( props ) {
             <div className="product-form product-qty pb-0">
                 <label className="d-none">QTY:</label>
                 <div className="product-form-group">
-                    <Quantity max={ product.data.stock } product={ product } onChangeQty={ changeQty } />
-                    <button className={ `btn-product btn-cart text-normal ls-normal font-weight-semi-bold ${ cartActive ? '' : 'disabled' }` } onClick={ addToCartHandler } onClick={ addToCartHandler }><i className='d-icon-bag'></i>Add to Cart</button>
+                    <Quantity max={ product.stock } product={ product } onChangeQty={ changeQty } />
+                    <button className={ `btn-product btn-cart text-normal ls-normal font-weight-semi-bold ${ cartActive ? '' : 'disabled' }` } onClick={ addToCartHandler } ><i className='d-icon-bag'></i>Add to Cart</button>
                 </div>
             </div>
 

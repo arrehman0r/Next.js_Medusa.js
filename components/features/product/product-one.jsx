@@ -45,7 +45,7 @@ function ProductOne(props) {
 
   const addToCartHandler = (e) => {
     e.preventDefault();
-    addToCart({ ...product, qty: 1, price: product.sale_price });
+    addToCart({ ...product, qty: 1, price: product.variants[0]?.prices[1]?.amount });
   };
   console.log("this is product:", product);
   return (
@@ -54,7 +54,7 @@ function ProductOne(props) {
         <ALink href={`/product/default/${product.id}`}>
           <LazyLoadImage
             alt="product"
-            src={product.images[0].src}
+            src={product.images[0].url}
             threshold={500}
             effect="opacity"
             width="300"
@@ -64,7 +64,7 @@ function ProductOne(props) {
           {product.images.length >= 2 ? (
             <LazyLoadImage
               alt="product"
-              src={product.images[1].src}
+              src={product.images[1].url}
               threshold={500}
               effect="opacity"
               width="300"
@@ -87,7 +87,7 @@ function ProductOne(props) {
             ""
           )}
           {product.discount > 0 ? (
-            product.variations.length === 0 ? (
+            product.variants.length === 0 ? (
               <label className="product-label label-sale">
                 {product.discount}% OFF
               </label>
@@ -100,7 +100,7 @@ function ProductOne(props) {
         </div>
 
         <div className="product-action-vertical">
-          {product.variations.length > 0 ? (
+          {product.variants.length > 0 ? (
             <ALink
               href={`/product/default/${product.id}`}
               className="btn-product-icon btn-cart"
@@ -147,11 +147,11 @@ function ProductOne(props) {
         <div className="product-cat">
           {product.categories
             ? product.categories.map((item, index) => (
-                <React.Fragment key={item.name + "-" + index}>
+                <React.Fragment key={item.title + "-" + index}>
                   <ALink
                     href={{ pathname: "/shop", query: { category: item.id } }}
                   >
-                    {item.name}
+                    {item.title}
                     {index < product.categories.length - 1 ? ", " : ""}
                   </ALink>
                 </React.Fragment>
@@ -160,23 +160,23 @@ function ProductOne(props) {
         </div>
 
         <h3 className="product-name">
-          <ALink href={`/product/default/${product.id}`}>{product.name}</ALink>
+          <ALink href={`/product/default/${product.id}`}>{product.title}</ALink>
         </h3>
 
         <div className="product-price">
-          {product.sale_price !== product.regular_price ? (
-            product.variations.length === 0 ||
-            (product.variations.length > 0 && !product.variations[0].price) ? (
+          {product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount ? (
+            product.variants.length === 0 ||
+            (product.variants.length > 0 && !product.variants[0].price) ? (
               <>
                 <ins className="new-price">Rs.{toDecimal(product.price)}</ins>
                 <del className="old-price">
-                  Rs.{toDecimal(product.regular_price)}
+                  Rs.{toDecimal(product.variants[0]?.prices[0]?.amount)}
                 </del>
               </>
             ) : (
               <del className="new-price">
-                Rs.{toDecimal(product.sale_price)} – Rs.
-                {toDecimal(product.regular_price)}
+                Rs.{toDecimal(product.variants[0]?.prices[1]?.amount)} – Rs.
+                {toDecimal(product.variants[0]?.prices[0]?.amount)}
               </del>
             )
           ) : (

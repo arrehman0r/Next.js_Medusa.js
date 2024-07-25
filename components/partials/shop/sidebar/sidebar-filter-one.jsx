@@ -138,13 +138,13 @@ function SidebarFilterOne ( props ) {
                                             data && sidebarData.categories.map( ( item, index ) => (
                                                 item.children ?
                                                     <li
-                                                        key={ item.name + ' - ' + index }
+                                                        key={ item.title + ' - ' + index }
                                                         className={ `with-ul overflow-hidden ${ item.id === query.category || item.children.findIndex( subCat => subCat.slug === query.category ) > -1 ? 'show' : '' } ` }
                                                     >
                                                         <SlideToggle collapsed={ true } >
                                                             { ( { onToggle, setCollapsibleElement, toggleState } ) => (
                                                                 <>
-                                                                    <ALink href={ { pathname: router.pathname, query: { category: item.id, grid: query.grid, type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.name }
+                                                                    <ALink href={ { pathname: router.pathname, query: { category: item.id, grid: query.grid, type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.title }
                                                                         <i className={ `fas fa-chevron-down ${ toggleState.toLowerCase() }` } onClick={ e => { onToggle(); e.stopPropagation(); e.preventDefault(); } }></i>
                                                                     </ALink>
 
@@ -153,9 +153,9 @@ function SidebarFilterOne ( props ) {
                                                                             <ul style={ { display: "block" } }>
                                                                                 {
                                                                                     item.children.map( ( subItem, index ) =>
-                                                                                        <li key={ subItem.name + ' - ' + index }
+                                                                                        <li key={ subItem.title + ' - ' + index }
                                                                                             className={ `with-ul ${ subItem.slug === query.category ? 'show' : '' } ` }>
-                                                                                            <ALink scroll={ false } href={ { pathname: router.pathname, query: { category: subItem.slug, grid: query.grid, type: router.query.type ? router.query.type : null } } }>{ subItem.name }</ALink>
+                                                                                            <ALink scroll={ false } href={ { pathname: router.pathname, query: { category: subItem.slug, grid: query.grid, type: router.query.type ? router.query.type : null } } }>{ subItem.title }</ALink>
                                                                                         </li>
                                                                                     ) }
                                                                             </ul>
@@ -167,9 +167,9 @@ function SidebarFilterOne ( props ) {
                                                     </li> :
                                                     <li
                                                         className={ query.category === item.id ? 'show' : '' }
-                                                        key={ item.name + ' - ' + index }
+                                                        key={ item.title + ' - ' + index }
                                                     >
-                                                        <ALink href={ { pathname: router.pathname, query: { category: item.id, grid: query.grid, type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.name }
+                                                        <ALink href={ { pathname: router.pathname, query: { category: item.id, grid: query.grid, type: router.query.type ? router.query.type : null } } } scroll={ false }>{ item.title }
                                                         </ALink>
                                                     </li>
                                             ) )
@@ -214,7 +214,7 @@ function SidebarFilterOne ( props ) {
                                                     className={ containsAttrInUrl( 'sizes', item.id ) ? 'active' : '' }
                                                     key={ item + ' - ' + index }
                                                 >
-                                                    <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, sizes: getUrlForAttrs( 'sizes', item.id ), type: router.query.type ? router.query.type : null } } }>{ item.name }
+                                                    <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, sizes: getUrlForAttrs( 'sizes', item.id ), type: router.query.type ? router.query.type : null } } }>{ item.title }
                                                     </ALink>
                                                 </li>
                                             )
@@ -232,7 +232,7 @@ function SidebarFilterOne ( props ) {
                                                     className={ containsAttrInUrl( 'colors', item.id ) ? 'active' : '' }
                                                     key={ item + ' - ' + index }
                                                 >
-                                                    <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, colors: getUrlForAttrs( 'colors', item.id ), type: router.query.type ? router.query.type : null } } }>{ item.name }
+                                                    <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, colors: getUrlForAttrs( 'colors', item.id ), type: router.query.type ? router.query.type : null } } }>{ item.title }
                                                     </ALink>
                                                 </li>
                                             )
@@ -250,7 +250,7 @@ function SidebarFilterOne ( props ) {
                                                     className={ containsAttrInUrl( 'brands', item.id ) ? 'active' : '' }
                                                     key={ item + ' - ' + index }
                                                 >
-                                                    <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, brands: getUrlForAttrs( 'brands', item.id ), type: router.query.type ? router.query.type : null } } }>{ item.name }
+                                                    <ALink scroll={ false } href={ { pathname: router.pathname, query: { ...query, page: 1, brands: getUrlForAttrs( 'brands', item.id ), type: router.query.type ? router.query.type : null } } }>{ item.title }
                                                     </ALink>
                                                 </li>
                                             )
@@ -271,7 +271,7 @@ function SidebarFilterOne ( props ) {
                                                         sidebarData.featured.slice( 0, 3 ).map( ( item, index ) =>
                                                             <SmallProduct
                                                                 product={ item }
-                                                                key={ item.name + ' - ' + index }
+                                                                key={ item.title + ' - ' + index }
                                                             />
                                                         ) }
                                                 </div>
@@ -280,7 +280,7 @@ function SidebarFilterOne ( props ) {
                                                         sidebarData.featured.slice( 3, 6 ).map( ( item, index ) =>
                                                             <SmallProduct
                                                                 product={ item }
-                                                                key={ item.name + ' - ' + index }
+                                                                key={ item.title + ' - ' + index }
                                                             />
                                                         ) }
                                                 </div>

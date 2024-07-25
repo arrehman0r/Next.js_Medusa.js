@@ -40,7 +40,7 @@ function MediaLightBox( props ) {
                         onMoveNextRequest={ setNextHandler }
                         animationDisabled={ false }
                         animationDuration={ 300 }
-                        imageTitle={ product.name }
+                        imageTitle={ product.title }
                         imagePadding={ 80 }
                         clickOutsideToClose={ true }
                     />

@@ -32,15 +32,15 @@ function DetailOne( props ) {
     if ( product.data && product.data.variants.length > 0 ) {
         if ( product.data.variants[ 0 ].size )
             product.data.variants.forEach( item => {
-                if ( sizes.findIndex( size => size.name === item.size.name ) === -1 ) {
-                    sizes.push( { name: item.size.name, value: item.size.size } );
+                if ( sizes.findIndex( size => size.title === item.size.title ) === -1 ) {
+                    sizes.push( { name: item.size.title, value: item.size.size } );
                 }
             } );
 
         if ( product.data.variants[ 0 ].color ) {
             product.data.variants.forEach( item => {
-                if ( colors.findIndex( color => color.name === item.color.name ) === -1 )
-                    colors.push( { name: item.color.name, value: item.color.color } );
+                if ( colors.findIndex( color => color.title === item.color.title ) === -1 )
+                    colors.push( { name: item.color.title, value: item.color.color } );
             } );
         }
     }
@@ -54,7 +54,7 @@ function DetailOne( props ) {
         if ( product.data.variants.length > 0 ) {
             if ( ( curSize !== 'null' && curColor !== 'null' ) || ( curSize === 'null' && product.data.variants[ 0 ].size === null && curColor !== 'null' ) || ( curColor === 'null' && product.data.variants[ 0 ].color === null && curSize !== 'null' ) ) {
                 setCartActive( true );
-                setCurIndex( product.data.variants.findIndex( item => ( item.size !== null && item.color !== null && item.color.name === curColor && item.size.name === curSize ) || ( item.size === null && item.color.name === curColor ) || ( item.color === null && item.size.name === curSize ) ) );
+                setCurIndex( product.data.variants.findIndex( item => ( item.size !== null && item.color !== null && item.color.title === curColor && item.size.title === curSize ) || ( item.size === null && item.color.title === curColor ) || ( item.color === null && item.size.title === curSize ) ) );
             } else {
                 setCartActive( false );
             }
@@ -94,21 +94,21 @@ function DetailOne( props ) {
     const addToCartHandler = () => {
         if ( product.data.stock > 0 && cartActive ) {
             if ( product.data.variants.length > 0 ) {
-                let tmpName = product.data.name, tmpPrice;
+                let tmpName = product.data.title, tmpPrice;
                 tmpName += curColor !== 'null' ? '-' + curColor : '';
                 tmpName += curSize !== 'null' ? '-' + curSize : '';
 
-                if ( product.data.sale_price === product.data.regular_price ) {
-                    tmpPrice = product.data.sale_price;
+                if ( product.data.variants[0]?.prices[1]?.amount === product.data.variants[0]?.prices[0]?.amount ) {
+                    tmpPrice = product.data.variants[0]?.prices[1]?.amount;
                 } else if ( !product.data.variants[ 0 ].price && product.data.discount > 0 ) {
-                    tmpPrice = product.data.sale_price;
+                    tmpPrice = product.data.variants[0]?.prices[1]?.amount;
                 } else {
-                    tmpPrice = product.data.variants[ curIndex ].regular_price ? product.data.variants[ curIndex ].regular_price : product.data.variants[ curIndex ].price;
+                    tmpPrice = product.data.variants[ curIndex ].variants[0]?.prices[0]?.amount ? product.data.variants[ curIndex ].variants[0]?.prices[0]?.amount : product.data.variants[ curIndex ].price;
                 }
 
                 addToCart( { ...product.data, name: tmpName, qty: quantity, price: tmpPrice } );
             } else {
-                addToCart( { ...product.data, qty: quantity, price: product.data.sale_price } );
+                addToCart( { ...product.data, qty: quantity, price: product.data.variants[0]?.prices[1]?.amount } );
             }
         }
     }
@@ -122,14 +122,14 @@ function DetailOne( props ) {
         if ( color === 'null' || size === 'null' ) return false;
 
         if ( sizes.length === 0 ) {
-            return product.data.variants.findIndex( item => item.color.name === curColor ) === -1;
+            return product.data.variants.findIndex( item => item.color.title === curColor ) === -1;
         }
 
         if ( colors.length === 0 ) {
-            return product.data.variants.findIndex( item => item.size.name === curSize ) === -1;
+            return product.data.variants.findIndex( item => item.size.title === curSize ) === -1;
         }
 
-        return product.data.variants.findIndex( item => item.color.name === color && item.size.name === size ) === -1;
+        return product.data.variants.findIndex( item => item.color.title === color && item.size.title === size ) === -1;
     }
 
     function changeQty( qty ) {
@@ -151,16 +151,16 @@ function DetailOne( props ) {
                     </div> : ''
             }
 
-            <h2 className="product-name">{ product.data.name }</h2>
+            <h2 className="product-name">{ product.data.title }</h2>
 
             <div className='product-meta'>
                 SKU: <span className='product-sku'>{ product.data.sku }</span>
                 CATEGORIES: <span className='product-brand'>
                     {
                         product.data.categories.map( ( item, index ) =>
-                            <React.Fragment key={ item.name + '-' + index }>
+                            <React.Fragment key={ item.title + '-' + index }>
                                 <ALink href={ { pathname: '/shop', query: { category: item.id } } }>
-                                    { item.name }
+                                    { item.title }
                                 </ALink>
                                 { index < product.data.categories.length - 1 ? ', ' : '' }
                             </React.Fragment>
@@ -170,20 +170,20 @@ function DetailOne( props ) {
 
             <div className="product-price mb-2">
                 {
-                    product.data.sale_price !== product.data.regular_price ?
+                    product.data.variants[0]?.prices[1]?.amount !== product.data.variants[0]?.prices[0]?.amount ?
                         product.data.variants.length === 0 || ( product.data.variants.length > 0 && !product.data.variants[ 0 ].price ) ?
                             <>
-                                <ins className="new-price">${ toDecimal( product.data.sale_price ) }</ins>
-                                <del className="old-price">${ toDecimal( product.data.regular_price ) }</del>
+                                <ins className="new-price">${ toDecimal( product.data.variants[0]?.prices[1]?.amount ) }</ins>
+                                <del className="old-price">${ toDecimal( product.data.variants[0]?.prices[0]?.amount ) }</del>
                             </>
                             :
-                            < del className="new-price">${ toDecimal( product.data.sale_price ) } – ${ toDecimal( product.data.regular_price ) }</del>
-                        : <ins className="new-price">${ toDecimal( product.data.sale_price ) }</ins>
+                            < del className="new-price">${ toDecimal( product.data.variants[0]?.prices[1]?.amount ) } – ${ toDecimal( product.data.variants[0]?.prices[0]?.amount ) }</del>
+                        : <ins className="new-price">${ toDecimal( product.data.variants[0]?.prices[1]?.amount ) }</ins>
                 }
             </div>
 
             {
-                product.data.sale_price !== product.data.regular_price && product.data.variants.length === 0 ?
+                product.data.variants[0]?.prices[1]?.amount !== product.data.variants[0]?.prices[0]?.amount && product.data.variants.length === 0 ?
                     <Countdown type={ 2 } /> : ''
             }
 
@@ -203,15 +203,15 @@ function DetailOne( props ) {
                     <>
                         {
                             product.data.variants[ 0 ].color ?
-                                <div className='product-form product-variations product-color'>
+                                <div className='product-form product-variants product-color'>
                                     <label>Color:</label>
                                     <div className='select-box'>
                                         <select name='color' className='form-control select-color' onChange={ setColorHandler } value={ curColor }>
                                             <option value="null">Choose an option</option>
                                             {
                                                 colors.map( item =>
-                                                    !isDisabled( item.name, curSize ) ?
-                                                        <option value={ item.name } key={ "color-" + item.name }>{ item.name }</option> : ''
+                                                    !isDisabled( item.title, curSize ) ?
+                                                        <option value={ item.title } key={ "color-" + item.title }>{ item.title }</option> : ''
                                                 )
                                             }
                                         </select>
@@ -221,7 +221,7 @@ function DetailOne( props ) {
 
                         {
                             product.data.variants[ 0 ].size ?
-                                <div className='product-form product-variations product-size mb-0 pb-2'>
+                                <div className='product-form product-variants product-size mb-0 pb-2'>
                                     <label>Size:</label>
                                     <div className='product-form-group'>
                                         <div className='select-box'>
@@ -229,8 +229,8 @@ function DetailOne( props ) {
                                                 <option value="null">Choose an option</option>
                                                 {
                                                     sizes.map( item =>
-                                                        !isDisabled( curColor, item.name ) ?
-                                                            <option value={ item.name } key={ "size-" + item.name }>{ item.name }</option> : ''
+                                                        !isDisabled( curColor, item.title ) ?
+                                                            <option value={ item.title } key={ "size-" + item.title }>{ item.title }</option> : ''
                                                     )
                                                 }
                                             </select>
@@ -253,9 +253,9 @@ function DetailOne( props ) {
                                             <div className="single-product-price">
                                                 {
                                                     product.data.variants[ curIndex ].price ?
-                                                        product.data.variants[ curIndex ].regular_price ?
+                                                        product.data.variants[ curIndex ].variants[0]?.prices[0]?.amount ?
                                                             <div className="product-price mb-0">
-                                                                <ins className="new-price">${ toDecimal( product.data.variants[ curIndex ].regular_price ) }</ins>
+                                                                <ins className="new-price">${ toDecimal( product.data.variants[ curIndex ].variants[0]?.prices[0]?.amount ) }</ins>
                                                                 <del className="old-price">${ toDecimal( product.data.variants[ curIndex ].price ) }</del>
                                                             </div>
                                                             : <div className="product-price mb-0">
@@ -285,19 +285,19 @@ function DetailOne( props ) {
                                     </ALink>
                                 </figure>
                                 <div>
-                                    <h4 className="product-title"><ALink href={ '/product/default/' + product.data.slug }>{ product.data.name }</ALink></h4>
+                                    <h4 className="product-title"><ALink href={ '/product/default/' + product.data.slug }>{ product.data.title }</ALink></h4>
                                     <div className="product-info">
                                         <div className="product-price mb-0">
                                             {
-                                                product.data.sale_price !== product.data.regular_price ?
+                                                product.data.variants[0]?.prices[1]?.amount !== product.data.variants[0]?.prices[0]?.amount ?
                                                     product.data.variants.length === 0 ?
                                                         <>
-                                                            <ins className="new-price">${ toDecimal( product.data.sale_price ) }</ins>
-                                                            <del className="old-price">${ toDecimal( product.data.regular_price ) }</del>
+                                                            <ins className="new-price">${ toDecimal( product.data.variants[0]?.prices[1]?.amount ) }</ins>
+                                                            <del className="old-price">${ toDecimal( product.data.variants[0]?.prices[0]?.amount ) }</del>
                                                         </>
                                                         :
-                                                        < del className="new-price">${ toDecimal( product.data.sale_price ) } – ${ toDecimal( product.data.regular_price ) }</del>
-                                                    : <ins className="new-price">${ toDecimal( product.data.sale_price ) }</ins>
+                                                        < del className="new-price">${ toDecimal( product.data.variants[0]?.prices[1]?.amount ) } – ${ toDecimal( product.data.variants[0]?.prices[0]?.amount ) }</del>
+                                                    : <ins className="new-price">${ toDecimal( product.data.variants[0]?.prices[1]?.amount ) }</ins>
                                             }
                                         </div>
 
