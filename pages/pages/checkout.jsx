@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { connect,useStore } from "react-redux";
+import { useEffect, useState } from "react";
+import { connect, useDispatch, useStore } from "react-redux";
 import Helmet from "react-helmet";
 
 import Collapse from "react-bootstrap/Collapse";
@@ -10,15 +10,17 @@ import Card from "~/components/features/accordion/card";
 import SlideToggle from "react-slide-toggle";
 
 import { toDecimal, getTotalPrice } from "~/utils";
-import { createOrder } from "~/server/axiosApi";
+import { createCart, createOrder, getShippingMethod } from "~/server/axiosApi";
 import { useRouter } from 'next/navigation';
+import { REGIOD_ID, SALES_CHANNEL_ID } from "~/env";
 
 
 function Checkout(props) {
   const { cartList } = props;
-
+  const dispatch = useDispatch()
   const store = useStore();
   const router = useRouter();
+  const cartId = store.getState().cart.cartId;
   console.log("this is cart list", cartList);
   const [customerDetails, setCustomerDetails] = useState({
     firstName: "",
@@ -32,6 +34,30 @@ function Checkout(props) {
     email: "",
   });
 
+  useEffect(() => {
+    if (!cartId) handleCreateCartId();
+  }, [cartId]);
+
+
+  const handleCreateCartId = async () => {
+    if (cartId) return;
+    const body = {
+      region_id: REGIOD_ID,
+      sales_channel_id: SALES_CHANNEL_ID,
+      country_code: "pk",
+      context: {},
+    }
+    try {
+      const res = await createCart(body);
+      const newCartId = res.cart?.id;
+      console.log("newCartId", newCartId)
+      dispatch({ type: "SET_CART_ID", payload: { cartId: newCartId } });
+    } catch (error) {
+      console.log("error creating cart id", error);
+
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCustomerDetails((prevState) => ({ ...prevState, [name]: value }));
@@ -40,12 +66,12 @@ function Checkout(props) {
   const handleCreateOrder = async (e) => {
     e.preventDefault();
     const lineItems = cartList.map(item => ({
-        product_id: item.id,
-        // variation_id: item.variationId, // If variationId exists
-        quantity: item.qty,
-      }));
+      product_id: item.id,
+      // variation_id: item.variationId, // If variationId exists
+      quantity: item.qty,
+    }));
 
-const email = customerDetails.email || "info@partyshope.com";
+    const email = customerDetails.email || "info@partyshope.com";
     const orderDetails = {
       payment_method: "bacs",
       payment_method_title: "Cash on Delivery",
@@ -75,30 +101,30 @@ const email = customerDetails.email || "info@partyshope.com";
 
       line_items: lineItems,
 
-    shipping_lines: getTotalPrice(cartList) <= 2000 ? [ // Check if the order amount is less than or equal to 2000 Rs
-      {
-        method_id: "flat_rate",
-        method_title: "Flat Rate",
-        total: "100.00",
-      },
-    ] : [ // If the order amount is greater than 2000 Rs, apply free shipping
-      {
-        method_id: "free_shipping",
-        method_title: "Free Shipping",
-        total: "0.00",
-      },
-    ],
+      shipping_lines: getTotalPrice(cartList) <= 2000 ? [ // Check if the order amount is less than or equal to 2000 Rs
+        {
+          method_id: "flat_rate",
+          method_title: "Flat Rate",
+          total: "100.00",
+        },
+      ] : [ // If the order amount is greater than 2000 Rs, apply free shipping
+        {
+          method_id: "free_shipping",
+          method_title: "Free Shipping",
+          total: "0.00",
+        },
+      ],
     };
 
     try {
       // Call createOrder function with the required data
       const response = await createOrder(orderDetails);
-      console.log("Order created successfully:",response);
-     // You can clear the cart like this:
-     if (response.id){ 
-     store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
-     router.push(`/order/${response.id}`);
-     }
+      console.log("Order created successfully:", response);
+      // You can clear the cart like this:
+      if (response.id) {
+        store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
+        router.push(`/order/${response.id}`);
+      }
       // Handle success response as needed
     } catch (error) {
       console.error("Error creating order:", error);
@@ -115,9 +141,8 @@ const email = customerDetails.email || "info@partyshope.com";
       <h1 className="d-none">Party Shope Web Store - Checkout</h1>
 
       <div
-        className={`page-content pt-7 pb-10 ${
-          cartList.length > 0 ? "mb-10" : "mb-2"
-        }`}
+        className={`page-content pt-7 pb-10 ${cartList.length > 0 ? "mb-10" : "mb-2"
+          }`}
       >
         <div className="step-by pr-4 pl-4">
           <h3 className="title title-simple title-step">
@@ -483,20 +508,20 @@ const email = customerDetails.email || "info@partyshope.com";
                             </tr>
                             <tr className="sumnary-shipping shipping-row-last">
 
-                            {getTotalPrice(cartList)<= 2000?   
-                          (  <>  <td>
-                                <h4 className="summary-subtitle">
-                                  Flat Shipping
-                                </h4>
-                              </td>
+                              {getTotalPrice(cartList) <= 2000 ?
+                                (<>  <td>
+                                  <h4 className="summary-subtitle">
+                                    Flat Shipping
+                                  </h4>
+                                </td>
 
-                              <td>Rs.100</td></>) : (<>  <td>
-                                <h4 className="summary-subtitle">
-                                  Free Shipping
-                                </h4>
-                              </td>
+                                  <td>Rs.100</td></>) : (<>  <td>
+                                    <h4 className="summary-subtitle">
+                                      Free Shipping
+                                    </h4>
+                                  </td>
 
-                              <td>Rs.00</td></>)}
+                                    <td>Rs.00</td></>)}
 
                               {/* <ul> */}
                               {/* <li>
@@ -533,7 +558,7 @@ const email = customerDetails.email || "info@partyshope.com";
                               </td>
                               <td className=" pt-0 pb-0">
                                 <p className="summary-total-price ls-s text-primary">
-                                  Rs.{toDecimal(getTotalPrice(cartList)+ (getTotalPrice(cartList)<= 2000? 100:0))}
+                                  Rs.{toDecimal(getTotalPrice(cartList) + (getTotalPrice(cartList) <= 2000 ? 100 : 0))}
                                 </p>
                               </td>
                             </tr>
@@ -570,7 +595,7 @@ const email = customerDetails.email || "info@partyshope.com";
                                 className="custom-control-label"
                                 htmlFor="local_pickup"
                               >
-                               Cash on Delivery
+                                Cash on Delivery
                               </label>
 
                               {/* <ALink href="#" className={ `text-body text-normal ls-m ${ !isFirst ? 'collapse' : '' }` } onClick={ () => { isFirst && setFirst( !isFirst ) } }>Cash on delivery</ALink> */}
@@ -602,9 +627,9 @@ const email = customerDetails.email || "info@partyshope.com";
                           </label>
                         </div>
                         <button
-                          // type="submit"
+                          type="submit"
                           className="btn btn-dark btn-rounded btn-order"
-                          // onClick={() => handleCreateOrder()}
+                          onClick={() => handleCreateOrder()}
                         >
                           Place Order
                         </button>

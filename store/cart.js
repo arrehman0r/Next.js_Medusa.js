@@ -9,49 +9,54 @@ const actionTypes = {
     ADD_TO_CART: 'ADD_TO_CART',
     REMOVE_FROM_CART: 'REMOVE_FROM_CART',
     UPDATE_CART: 'UPDATE_CART',
-    REFRESH_STORE: 'REFRESH_STORE'
+    REFRESH_STORE: 'REFRESH_STORE',
+    SET_CART_ID: 'SET_CART_ID'
 }
 
 const initialState = {
-    data: []
+    data: [],
+    cartId: null,
 }
 
-function cartReducer( state = initialState, action ) {
-    switch ( action.type ) {
+function cartReducer(state = initialState, action) {
+    switch (action.type) {
         case actionTypes.ADD_TO_CART:
             let tmpProduct = { ...action.payload.product };
 
-            if ( state.data.findIndex( item => item.title === action.payload.product.title ) > -1 ) {
-                let tmpData = state.data.reduce( ( acc, cur ) => {
-                    if ( cur.title === tmpProduct.title ) {
-                        acc.push( {
+            if (state.data.findIndex(item => item.title === action.payload.product.title) > -1) {
+                let tmpData = state.data.reduce((acc, cur) => {
+                    if (cur.title === tmpProduct.title) {
+                        acc.push({
                             ...cur,
-                            qty: parseInt( cur.qty ) + parseInt( tmpProduct.qty )
-                        } );
+                            qty: parseInt(cur.qty) + parseInt(tmpProduct.qty)
+                        });
                     } else {
-                        acc.push( cur );
+                        acc.push(cur);
                     }
 
                     return acc;
-                }, [] )
+                }, [])
 
                 return { ...state, data: tmpData };
             } else {
-                return { ...state, data: [ ...state.data, tmpProduct ] };
+                return { ...state, data: [...state.data, tmpProduct] };
             }
 
         case actionTypes.REMOVE_FROM_CART:
-            let cart = state.data.reduce( ( cartAcc, product ) => {
-                if ( product.title !== action.payload.product.title ) {
-                    cartAcc.push( product );
+            let cart = state.data.reduce((cartAcc, product) => {
+                if (product.title !== action.payload.product.title) {
+                    cartAcc.push(product);
                 }
                 return cartAcc;
-            }, [] );
+            }, []);
 
             return { ...state, data: cart };
 
         case actionTypes.UPDATE_CART:
             return { ...state, data: action.payload.products };
+
+        case actionTypes.SET_CART_ID: 
+            return { ...state, cartId: action.payload.cartId };
 
         case actionTypes.REFRESH_STORE:
             return initialState;
@@ -62,15 +67,17 @@ function cartReducer( state = initialState, action ) {
 }
 
 export const cartActions = {
-    addToCart: product => ( { type: actionTypes.ADD_TO_CART, payload: { product } } ),
-    removeFromCart: product => ( { type: actionTypes.REMOVE_FROM_CART, payload: { product } } ),
-    updateCart: products => ( { type: actionTypes.UPDATE_CART, payload: { products } } )
+    addToCart: product => ({ type: actionTypes.ADD_TO_CART, payload: { product } }),
+    removeFromCart: product => ({ type: actionTypes.REMOVE_FROM_CART, payload: { product } }),
+    updateCart: products => ({ type: actionTypes.UPDATE_CART, payload: { products } }),
+    refreshStore: () => ({ type: actionTypes.REFRESH_STORE }),
+    setCartId: cartId => ({ type: actionTypes.SET_CART_ID, payload: { cartId } }) 
 };
 
 export function* cartSaga() {
-    yield takeEvery( actionTypes.ADD_TO_CART, function* saga( e ) {
-        toast( <CartPopup product={ e.payload.product } /> );
-    } )
+    yield takeEvery(actionTypes.ADD_TO_CART, function* saga(e) {
+        toast(<CartPopup product={e.payload.product} />);
+    })
 }
 
 const persistConfig = {
@@ -79,4 +86,4 @@ const persistConfig = {
     storage
 }
 
-export default persistReducer( persistConfig, cartReducer );
+export default persistReducer(persistConfig, cartReducer);

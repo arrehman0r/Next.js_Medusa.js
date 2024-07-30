@@ -1,4 +1,4 @@
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 
 import ALink from '~/components/features/custom-link';
@@ -7,35 +7,55 @@ import Quantity from '~/components/features/quantity';
 import { cartActions } from '~/store/cart';
 
 import { toDecimal, getTotalPrice } from '~/utils';
+import { REGIOD_ID } from '~/env';
+import { getShippingMethod } from '~/server/axiosApi';
+import { utilsActions } from '~/store/utils';
 
 function Cart(props) {
-    const { cartList, removeFromCart, updateCart } = props;
-    const [cartItems, setCartItems] = useState([]);
+    const {   } = props;
+    const dispatch = useDispatch();
+    const cartList = useSelector(state => state.cart.data);
+    const shippingMethod = useSelector(state => state.utils.shippingMethod);
+    // useEffect(() => {
+    //     setCartItems([...cartList]);
+    // }, [cartList])
 
     useEffect(() => {
-        setCartItems([...cartList]);
-    }, [cartList])
+        fetchShippingMethod()
+    }, [])
+    const fetchShippingMethod = async () => {
+        const region_id = REGIOD_ID
+        const res = await getShippingMethod(region_id)
+        console.log("getShippingMethod res", res?.shipping_options)
+        if (res?.shipping_options) {
+            dispatch(utilsActions.setShippingMethod(res.shipping_options));
+        }
+    }
 
     const onChangeQty = (name, qty) => {
-        setCartItems(cartItems.map(item => {
-            return item.title === name ? { ...item, qty: qty } : item
-        }));
+        const updatedItems = cartList.map(item => 
+            item.title === name ? { ...item, qty: qty } : item
+        );
+        dispatch(cartActions.updateCart(updatedItems));
+    }
+    const removeFromCart = (product) => {
+        dispatch(cartActions.removeFromCart(product));
     }
 
-    const compareItems = () => {
-        if (cartItems.length !== cartList.length) return false;
+    // const compareItems = () => {
+    //     if (cartList.length !== cartList.length) return false;
 
-        for (let index = 0; index < cartItems.length; index++) {
-            if (cartItems[index].qty !== cartList[index].qty) return false;
-        }
+    //     for (let index = 0; index < cartList.length; index++) {
+    //         if (cartList[index].qty !== cartList[index].qty) return false;
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     const update = () => {
-        updateCart(cartItems);
+        dispatch(cartActions.updateCart(cartList));
     }
- 
+
     return (
         <div className="main cart">
             <div className="page-content pt-7 pb-10">
@@ -48,7 +68,7 @@ function Cart(props) {
                 <div className="container mt-7 mb-2">
                     <div className="row">
                         {
-                            cartItems.length > 0 ?
+                            cartList.length > 0 ?
                                 <>
                                     <div className="col-lg-8 col-md-12 pr-lg-4">
                                         <table className="shop-table cart-table">
@@ -63,7 +83,7 @@ function Cart(props) {
                                             </thead>
                                             <tbody>
                                                 {
-                                                    cartItems.map(item =>
+                                                    cartList.map(item =>
                                                         <tr key={'cart' + item.title}>
                                                             <td className="product-thumbnail">
                                                                 <figure>
@@ -79,14 +99,14 @@ function Cart(props) {
                                                                 </div>
                                                             </td>
                                                             <td className="product-subtotal">
-                                                                <span className="amount">Rs.{toDecimal(item.price)}</span>
+                                                                <span className="amount">Rs.{toDecimal(item.sale_price)}</span>
                                                             </td>
 
                                                             <td className="product-quantity">
-                                                                <Quantity qty={item.qty} max={item.stock_quantity} onChangeQty={qty => onChangeQty(item.title, qty)} />
+                                                                <Quantity qty={item.qty} max={item.variants[0].inventory_quantity} onChangeQty={qty => onChangeQty(item.title, qty)} />
                                                             </td>
                                                             <td className="product-price">
-                                                                <span className="amount">Rs.{toDecimal(item.price * item.qty)}</span>
+                                                                <span className="amount">Rs.{toDecimal(item.sale_price * item.qty)}</span>
                                                             </td>
                                                             <td className="product-close">
                                                                 <ALink href="#" className="product-remove" title="Remove this product" onClick={() => removeFromCart(item)}>
@@ -98,14 +118,14 @@ function Cart(props) {
                                             </tbody>
                                         </table>
                                         <div className="cart-actions mb-6 pt-4">
-                                            <ALink href="/shop" className="btn btn-dark btn-md btn-rounded btn-icon-left mr-4 mb-4"><i className="d-icon-arrow-left"></i>Continue Shopping</ALink>
-                                            <button
+                                            <ALink href="/elements/products/" className="btn btn-dark btn-md btn-rounded btn-icon-left mr-4 mb-4"><i className="d-icon-arrow-left"></i>Continue Shopping</ALink>
+                                            {/* <button
                                                 type="submit"
                                                 className={`btn btn-outline btn-dark btn-md btn-rounded ${compareItems() ? ' btn-disabled' : ''}`}
                                                 onClick={update}
                                             >
                                                 Update Cart
-                                            </button>
+                                            </button> */}
                                         </div>
                                         <div className="cart-coupon-box mb-8">
                                             <h4 className="title coupon-title text-uppercase ls-m">Coupon Discount</h4>
@@ -125,7 +145,7 @@ function Cart(props) {
                                                                 <h4 className="summary-subtitle">Subtotal</h4>
                                                             </td>
                                                             <td>
-                                                                <p className="summary-subtotal-price">Rs.{toDecimal(getTotalPrice(cartItems))}</p>
+                                                                <p className="summary-subtotal-price">Rs.{toDecimal(getTotalPrice(cartList))}</p>
                                                             </td>
                                                         </tr>
                                                         <tr className="sumnary-shipping shipping-row-last">
@@ -134,25 +154,26 @@ function Cart(props) {
                                                             </td>
 
                                                         </tr>
-                                                        {getTotalPrice(cartItems)<= 2000?   
-                                                       ( <tr>
-                                                            <td>
-                                                                <div class="custom-radio">
-                                                                    <input type="radio" id="flat_rate" name="shipping" class="custom-control-input" defaultChecked />
-                                                                    <label class="custom-control-label" for="flat_rate">Flat rate</label>
-                                                                </div>
-                                                            </td>
-                                                            <td>Rs.100</td>
-                                                        </tr>) : 
-                                                       ( <tr>
-                                                            <td>
-                                                                <div class="custom-radio">
-                                                                    <input type="radio" id="flat_rate" name="shipping" class="custom-control-input" defaultChecked />
-                                                                    <label class="custom-control-label" for="flat_rate">Free Shipping</label>
-                                                                </div>
-                                                            </td>
-                                                            <td>Rs.00</td>
-                                                        </tr>)}
+                                                        {shippingMethod && shippingMethod[0] && getTotalPrice(cartList) <= shippingMethod[0]?.requirements[0]?.amount
+ ?
+                                                            (<tr>
+                                                                <td>
+                                                                    <div class="custom-radio">
+                                                                        <input type="radio" id="flat_rate" name="shipping" class="custom-control-input" defaultChecked />
+                                                                        <label class="custom-control-label" for="flat_rate">Flat rate</label>
+                                                                    </div>
+                                                                </td>
+                                                                <td>{`Rs.${shippingMethod[0].amount}`}</td>
+                                                            </tr>) :
+                                                            (<tr>
+                                                                <td>
+                                                                    <div class="custom-radio">
+                                                                        <input type="radio" id="flat_rate" name="shipping" class="custom-control-input" defaultChecked />
+                                                                        <label class="custom-control-label" for="flat_rate">Free Shipping</label>
+                                                                    </div>
+                                                                </td>
+                                                                <td>Rs.00</td>
+                                                            </tr>)}
                                                     </tbody>
                                                 </table>
                                                 {/* <div className="shipping-address">
@@ -184,7 +205,8 @@ function Cart(props) {
                                                                 <h4 className="summary-subtitle">Total</h4>
                                                             </td>
                                                             <td>
-                                                            <p className="summary-total-price ls-s">Rs.{toDecimal(getTotalPrice(cartItems) + (getTotalPrice(cartItems) <= 2000 ? 100 : 0))}</p>
+                                                            <p className="summary-total-price ls-s">Rs.{toDecimal(getTotalPrice(cartList) + (shippingMethod && shippingMethod[0] && getTotalPrice(cartList) <= shippingMethod[0].requirements[0].amount ? shippingMethod[0].amount : 0))}</p>
+
 
                                                             </td>
                                                         </tr>
@@ -213,10 +235,10 @@ function Cart(props) {
     )
 }
 
-function mapStateToProps(state) {
-    return {
-        cartList: state.cart.data ? state.cart.data : []
-    }
-}
-
-export default connect(mapStateToProps, { removeFromCart: cartActions.removeFromCart, updateCart: cartActions.updateCart })(Cart);
+// function mapStateToProps(state) {
+//     return {
+//         cartList: state.cart.data ? state.cart.data : []
+//     }
+// }
+export default Cart
+// export default connect(mapStateToProps, { removeFromCart: cartActions.removeFromCart, updateCart: cartActions.updateCart })(Cart);

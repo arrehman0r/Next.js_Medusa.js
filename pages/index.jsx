@@ -33,6 +33,11 @@ import { getStaticProps } from './../data/index';
     // const onSale = data && data.specialProducts.onSale;
     // const posts = data && data.posts.data;
 
+
+
+
+
+    
     return (
         <div className="main home">
             <Helmet>

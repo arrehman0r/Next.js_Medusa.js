@@ -11,6 +11,14 @@ export const getProduct = (id) => {
   return makeRequest("get", `products/${id}`);
 };
 
+export const createCart = (body) => {
+  return makeRequest("post", "carts", body);
+};
+
+export const getShippingMethod = (regionId) => {
+  return makeRequest("get", `shipping-options?region_id=${regionId}`)
+}
+
 export const createOrder = (body) => {
   return makeRequest("post", "orders", body);
 };

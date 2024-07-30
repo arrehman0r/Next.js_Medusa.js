@@ -252,12 +252,12 @@ function DetailOne(props) {
       </div>
 
 
-      {product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount 
+      {product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount
         ? (
-        <Countdown type={2} />
-      ) : (
-        ""
-      )}
+          <Countdown type={2} />
+        ) : (
+          ""
+        )}
       <div>
         <ShippingTime />
       </div>
@@ -357,7 +357,7 @@ function DetailOne(props) {
               <div className="card-wrapper">
                 {curIndex > -1 ? (
                   <div className="single-product-price">
-                    {product.variants[curIndex].prices[1]?.amount? (
+                    {product.variants[curIndex].prices[1]?.amount ? (
                       product.variants[curIndex].prices[0]?.amount ? (
                         <div className="product-price mb-0">
                           <ins className="new-price">
@@ -489,11 +489,11 @@ function DetailOne(props) {
                 </div>
               </div>
             </div>
-            {console.log("product.variants[0].inventory_quantity}",product.variants[0].inventory_quantity)}
+            {console.log("product.variants[0].inventory_quantity}", product.variants[0].inventory_quantity)}
             <div className="product-form product-qty pb-0">
               <label className="d-none">QTY:</label>
               <div className="product-form-group">
-                {console.log("product.variants[0].inventory_quantity}",product.variants[0].inventory_quantity)}
+                {console.log("product.variants[0].inventory_quantity}", product.variants[0].inventory_quantity)}
                 <Quantity
                   max={product.variants[0].inventory_quantity}
                   product={product}
