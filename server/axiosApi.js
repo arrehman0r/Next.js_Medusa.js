@@ -18,15 +18,29 @@ export const createCart = (body) => {
 export const getShippingMethod = (regionId) => {
   return makeRequest("get", `shipping-options?region_id=${regionId}`)
 }
-
-export const createOrder = (body) => {
-  return makeRequest("post", "orders", body);
+export const addLineItem = (cartId, lineItem) => {
+  return makeRequest("post", `carts/${cartId}/line-items`, lineItem)
 };
 
-export const retrieveOrder = (id) => {
-  return makeRequest("get", `orders/${id}`);
+export const addShippingCharges = (id, body) => {
+  return makeRequest("post", `carts/${id}/shipping-methods`, body)
+}
+
+export const updateCart = (id, body) => {
+  return makeRequest("post", `carts/${id}`, body);
+;}
+export const createCheckOut = (id) => {
+  return makeRequest("post", `carts/${id}/payment-sessions`);
+};
+
+export const confirmOrder = (id) => {
+  return makeRequest("post", `carts/${id}/complete`);
 };
 
 export const getAllProducts = () => {
   return makeRequest("get", "products");
 };
+
+export const retrieveOrder = (id) => {
+  return makeRequest("get", `orders/${id}`)
+}

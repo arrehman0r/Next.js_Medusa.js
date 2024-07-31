@@ -2,11 +2,13 @@ import { persistReducer } from "redux-persist";
 import storage from 'redux-persist/lib/storage';
 
 export const actionTypes = {
-    SHIPPING_METHOD: "SHIPPING_METHOD"
+    SHIPPING_METHOD: "SHIPPING_METHOD",
+    SET_LOADING : 'SET_LOADING'
 };
 
 const initialState = {
-    shippingMethod: null
+    shippingMethod: null,
+    loading: false
 };
 
 const utilsReducer = (state = initialState, action) => {
@@ -16,7 +18,12 @@ const utilsReducer = (state = initialState, action) => {
                 ...state,
                 shippingMethod: action.payload.shippingMethod
             };
-
+            case actionTypes.SET_LOADING:
+                return {
+                    ...state,
+                    loading: action.payload.loading
+                };
+    
         default:
             return state;
     }
@@ -26,6 +33,10 @@ export const utilsActions = {
     setShippingMethod: (shippingMethod) => ({
         type: actionTypes.SHIPPING_METHOD,
         payload: { shippingMethod }
+    }),
+    setLoading: (loading) => ({
+        type: actionTypes.SET_LOADING,
+        payload: { loading }
     })
 };
 

@@ -55,7 +55,7 @@ function cartReducer(state = initialState, action) {
         case actionTypes.UPDATE_CART:
             return { ...state, data: action.payload.products };
 
-        case actionTypes.SET_CART_ID: 
+        case actionTypes.SET_CART_ID:
             return { ...state, cartId: action.payload.cartId };
 
         case actionTypes.REFRESH_STORE:
@@ -71,7 +71,7 @@ export const cartActions = {
     removeFromCart: product => ({ type: actionTypes.REMOVE_FROM_CART, payload: { product } }),
     updateCart: products => ({ type: actionTypes.UPDATE_CART, payload: { products } }),
     refreshStore: () => ({ type: actionTypes.REFRESH_STORE }),
-    setCartId: cartId => ({ type: actionTypes.SET_CART_ID, payload: { cartId } }) 
+    setCartId: cartId => ({ type: actionTypes.SET_CART_ID, payload: { cartId } })
 };
 
 export function* cartSaga() {

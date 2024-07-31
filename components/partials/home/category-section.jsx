@@ -29,7 +29,7 @@ function CategorySection({ categories }) {
                   >
                     <figure className="category-media">
                       <LazyLoadImage
-                        src={category?.image?.url}
+                        src={category?.metadata?.thumbnailImageUrl}
                         alt="Intro Slider"
                         effect="opacity; transform"
                         width={280}

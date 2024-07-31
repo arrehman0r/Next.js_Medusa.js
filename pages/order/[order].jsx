@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import Helmet from 'react-helmet';
 
 import ALink from '~/components/features/custom-link';
@@ -7,6 +7,7 @@ import ALink from '~/components/features/custom-link';
 import { toDecimal, getCartSubTotal,formatDate } from '~/utils';
 import { retrieveOrder } from '~/server/axiosApi';
 import { useParams } from 'next/navigation';
+import { utilsActions } from '~/store/utils';
 
 
 
@@ -14,16 +15,21 @@ import { useParams } from 'next/navigation';
 
 function Order( ) {
   
-    const [orderDetails, setOrderDetails] = useState(null);
-  const params= useParams();
-  console.log("params",params)
+const [orderDetails, setOrderDetails] = useState(null);
+const params= useParams();
+console.log("params",params)
+const dispatch = useDispatch();
   const orderId = params.order;
     useEffect(() => {
         const fetchOrder = async () => {
             try {
+                dispatch(utilsActions.setLoading(true));
                 const order = await retrieveOrder(orderId);
-                setOrderDetails(order);
+                console.log("order details", order.order)
+                setOrderDetails(order.order);
+                dispatch(utilsActions.setLoading(false));
             } catch (error) {
+                dispatch(utilsActions.setLoading(false));
                 console.error('Error fetching order:', error);
             }
         };
@@ -77,7 +83,7 @@ function Order( ) {
                     <div className="order-results">
                         <div className="overview-item">
                             <span>Order number:</span>
-                            <strong>{orderDetails?.number}</strong>
+                            <strong>{orderDetails?.display_id}</strong>
                         </div>
                         <div className="overview-item">
                             <span>Status:</span>
@@ -85,19 +91,19 @@ function Order( ) {
                         </div>
                         <div className="overview-item">
                             <span>Date:</span>
-                            <strong>{formatDate(orderDetails?.date_created)}</strong>
+                            <strong>{formatDate(orderDetails?.created_at)}</strong>
                         </div>
                         <div className="overview-item">
                             <span>Number:</span>
-                            <strong>{orderDetails?.billing?.phone}</strong>
+                            <strong>{orderDetails?.shipping_address?.phone}</strong>
                         </div>
                         <div className="overview-item">
                             <span>Total:</span>
                             <strong>{orderDetails?.total  }</strong>
                         </div>
                         <div className="overview-item">
-                            <span>Payment method:</span>
-                            <strong>{orderDetails?.payment_method_title}</strong>
+                            <span>Payment status:</span>
+                            <strong>{orderDetails?.payment_status}</strong>
                         </div>
                     </div>
 
@@ -114,17 +120,17 @@ function Order( ) {
                             </thead>
                             <tbody>
                                 {
-                                    orderDetails?.line_items?.map( item =>
+                                    orderDetails?.items?.map( item =>
                                         <tr key={ 'order-' + item.title }>
                                             <td className="product-name">{ item.title } <span> <i className="fas fa-times"></i> { item.quantity }</span></td>
-                                            <td className="product-price">Rs.{ toDecimal( item.quantity * item.price ) }</td>
+                                            <td className="product-price">Rs.{ toDecimal( item.unit_price) }</td>
                                         </tr>
                                     ) }
                                 <tr className="summary-subtotal">
                                     <td>
                                         <h4 className="summary-subtitle">Subtotal:</h4>
                                     </td>
-                                    <td className="summary-subtotal-price">Rs.{ toDecimal( getCartSubTotal( orderDetails?.line_items ) ) }</td>
+                                    <td className="summary-subtotal-price">Rs.{orderDetails?.subtotal}</td>
                                 </tr>
                                 <tr className="summary-subtotal">
                                     <td>
@@ -152,12 +158,12 @@ function Order( ) {
                     <h2 className="title title-simple text-left pt-10 mb-2">Shipping Address</h2>
                     <div className="address-info pb-8 mb-6">
                         <p className="address-detail pb-2">
-                           {orderDetails?.billing?.first_name}<br />
-                       {orderDetails?.billing?.phone}<br />
-                       {orderDetails?.billing?.address_1}<br />
-                       {orderDetails?.billing?.address_2}<br />
-                       {orderDetails?.billing?.city}<br />
-                       {orderDetails?.billing?.email}
+                           {orderDetails?.shipping_address?.first_name}<br />
+                       {orderDetails?.shipping_address?.phone}<br />
+                       {orderDetails?.shipping_address?.address_1}<br />
+                       {orderDetails?.shipping_address?.address_2}<br />
+                       {orderDetails?.shipping_address?.city}<br />
+                       {orderDetails?.shipping_address?.email}
                     </p>
                         {/* <p className="email"> {orderDetails?.billing?.email}</p> */}
                     </div>

@@ -15,7 +15,7 @@ function Cart(props) {
     const {   } = props;
     const dispatch = useDispatch();
     const cartList = useSelector(state => state.cart.data);
-    const shippingMethod = useSelector(state => state.utils.shippingMethod);
+    const shippingMethod = useSelector((state) => state.utils.shippingMethod);
     // useEffect(() => {
     //     setCartItems([...cartList]);
     // }, [cartList])

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connect, useDispatch, useStore } from "react-redux";
+import { connect, useDispatch, useSelector, useStore } from "react-redux";
 import Helmet from "react-helmet";
 
 import Collapse from "react-bootstrap/Collapse";
@@ -10,9 +10,11 @@ import Card from "~/components/features/accordion/card";
 import SlideToggle from "react-slide-toggle";
 
 import { toDecimal, getTotalPrice } from "~/utils";
-import { createCart, createOrder, getShippingMethod } from "~/server/axiosApi";
+import { addLineItem, addShippingCharges, confirmOrder, createCart, createCheckOut, createOrder, getShippingMethod, updateCart } from "~/server/axiosApi";
 import { useRouter } from 'next/navigation';
 import { REGIOD_ID, SALES_CHANNEL_ID } from "~/env";
+import { utilsActions } from "~/store/utils";
+import { toast } from "react-toastify";
 
 
 function Checkout(props) {
@@ -20,7 +22,8 @@ function Checkout(props) {
   const dispatch = useDispatch()
   const store = useStore();
   const router = useRouter();
-  const cartId = store.getState().cart.cartId;
+  const cartId = useSelector((state) => state.cart.cartId);
+  const shippingMethod = useSelector((state) => state.utils.shippingMethod);
   console.log("this is cart list", cartList);
   const [customerDetails, setCustomerDetails] = useState({
     firstName: "",
@@ -35,11 +38,26 @@ function Checkout(props) {
   });
 
   useEffect(() => {
+    if (!shippingMethod || shippingMethod.length == 0) {
+      fetchShippingMethod();
+    }
+  }, [shippingMethod, dispatch]);
+
+  useEffect(() => {
     if (!cartId) handleCreateCartId();
   }, [cartId]);
 
+  const fetchShippingMethod = async () => {
+    const region_id = REGIOD_ID
+    const res = await getShippingMethod(region_id)
+    console.log("getShippingMethod res", res?.shipping_options)
+    if (res?.shipping_options) {
+      dispatch(utilsActions.setShippingMethod(res.shipping_options));
+    }
+  }
 
   const handleCreateCartId = async () => {
+    console.log("handleCreateCartId called")
     if (cartId) return;
     const body = {
       region_id: REGIOD_ID,
@@ -61,74 +79,66 @@ function Checkout(props) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCustomerDetails((prevState) => ({ ...prevState, [name]: value }));
+    toast.warn("something added ");
   };
 
   const handleCreateOrder = async (e) => {
+    dispatch(utilsActions.setLoading(true));
+    console.log("handleCreateOrder called")
     e.preventDefault();
     const lineItems = cartList.map(item => ({
-      product_id: item.id,
+      variant_id: item.variants[0].id,
       // variation_id: item.variationId, // If variationId exists
       quantity: item.qty,
     }));
 
-    const email = customerDetails.email || "info@partyshope.com";
+    await Promise.all(lineItems.map(item => addLineItem(cartId, item)));
+    console.log("line items ", lineItems,)
     const orderDetails = {
-      payment_method: "bacs",
-      payment_method_title: "Cash on Delivery",
-      set_paid: false,
-      billing: {
+      email: customerDetails.email || "info@partyshope.com",
+      customer_id: customerDetails.id || "",
+      shipping_address: {
+        address_1: customerDetails.address1,
+        address_2: customerDetails?.address2 || "",
+        country_code: "pk",
         first_name: customerDetails?.firstName,
-        last_name: customerDetails?.lastName,
-        address_1: customerDetails?.address1,
-        address_2: customerDetails?.address2,
-        city: customerDetails?.city,
-        state: customerDetails?.state,
-        postcode: customerDetails?.zip,
-        country: "PK",
-        email: email,
+        last_name: customerDetails?.lastName || "",
         phone: customerDetails?.phone,
+        city: customerDetails?.city
       },
-      shipping: {
+      billing_address: {
+        address_1: customerDetails.address1,
+        address_2: customerDetails?.address2 || "",
+        country_code: "pk",
         first_name: customerDetails?.firstName,
-        last_name: customerDetails?.lastName,
-        address_1: customerDetails?.address1,
-        address_2: customerDetails?.address2,
-        city: customerDetails?.city,
-        state: customerDetails?.state,
-        postcode: customerDetails?.zip,
-        country: "PK",
+        last_name: customerDetails?.lastName || "",
+        phone: customerDetails?.phone,
+        city: customerDetails?.city
       },
-
-      line_items: lineItems,
-
-      shipping_lines: getTotalPrice(cartList) <= 2000 ? [ // Check if the order amount is less than or equal to 2000 Rs
-        {
-          method_id: "flat_rate",
-          method_title: "Flat Rate",
-          total: "100.00",
-        },
-      ] : [ // If the order amount is greater than 2000 Rs, apply free shipping
-        {
-          method_id: "free_shipping",
-          method_title: "Free Shipping",
-          total: "0.00",
-        },
-      ],
     };
-
+    console.log("shippingMethod", shippingMethod)
+    const addDeliveryChargesBody = { option_id: shippingMethod[0]?.id };
+    console.log("shippingMethod[0]?.id", shippingMethod[0]?.id)
     try {
+      await addShippingCharges(cartId, addDeliveryChargesBody);
+      const res = await updateCart(cartId, orderDetails);
+      console.log("res of upodate cart", res)
+      await createCheckOut(cartId);
+      const confirmOrderRes = await confirmOrder(cartId);
+      console.log("confirmOrderRes", confirmOrderRes)
       // Call createOrder function with the required data
-      const response = await createOrder(orderDetails);
-      console.log("Order created successfully:", response);
+
+      console.log("Order created successfully:", confirmOrderRes);
       // You can clear the cart like this:
-      if (response.id) {
+      if (confirmOrderRes.data?.id) {
         store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
-        router.push(`/order/${response.id}`);
+        dispatch(utilsActions.setLoading(false));
+        router.push(`/order/${confirmOrderRes.data.id}`);
       }
       // Handle success response as needed
     } catch (error) {
       console.error("Error creating order:", error);
-      // Handle error as needed
+      dispatch(utilsActions.setLoading(false));
     }
   };
 
@@ -160,7 +170,7 @@ function Checkout(props) {
           {cartList.length > 0 ? (
             <>
               <div className="card accordion">
-                <Card
+                {/* <Card
                   type="parse"
                   title="<div class='alert alert-light alert-primary alert-icon mb-4 card-header'>
                             <i class='fas fa-exclamation-circle'></i> <span class='text-body'>Returning customer?</span> <a href='#' class='text-primary collapse'>Click here to login</a>
@@ -236,10 +246,10 @@ function Checkout(props) {
                       </div>
                     </div>
                   </div>
-                </Card>
+                </Card> */}
               </div>
               <div className="card accordion">
-                <Card
+                {/* <Card
                   title="
                                             <div class='alert alert-light alert-primary alert-icon mb-4 card-header'>
                                                 <i class='fas fa-exclamation-circle'></i>
@@ -266,9 +276,9 @@ function Checkout(props) {
                       </button>
                     </form>
                   </div>
-                </Card>
+                </Card> */}
               </div>
-              <form onSubmit={handleCreateOrder} className="form">
+              <form className="form" onSubmit={handleCreateOrder}>
                 <div className="row">
                   <div className="col-lg-7 mb-6 mb-lg-0 pr-lg-4">
                     <h3 className="title title-simple text-left text-uppercase">
@@ -345,8 +355,8 @@ function Checkout(props) {
                         />
                       </div>
                     </div>
-                    <div className="row">
-                      <div className="col-xs-6">
+                    <div className="row"> </div>
+                    {/* <div className="col-xs-6">
                         <label>ZIP</label>
                         <input
                           onChange={handleInputChange}
@@ -354,18 +364,18 @@ function Checkout(props) {
                           className="form-control"
                           name="zip"
                         />
-                      </div>
-                      <div className="col-xs-6">
-                        <label>Phone *</label>
-                        <input
-                          onChange={handleInputChange}
-                          type="text"
-                          className="form-control"
-                          name="phone"
-                          required
-                        />
-                      </div>
-                    </div>
+                      </div> */}
+                    {/* <div className="col-xs-6"> */}
+                    <label>Phone *</label>
+                    <input
+                      onChange={handleInputChange}
+                      type="text"
+                      className="form-control" shippingMethod
+                      name="phone"
+                      required
+                    />
+                    {/* </div> */}
+
                     <label>Email Address</label>
                     <input
                       onChange={handleInputChange}
@@ -395,7 +405,7 @@ function Checkout(props) {
                                                         </div>
                                                     </div>
                                                 ) }
-                                            </SlideToggle> */}
+                                            </SlideToggle>  */}
 
                     {/* <SlideToggle duration={ 300 } collapsed >
                                                 { ( { onToggle, setCollapsibleElement } ) => (
@@ -508,14 +518,14 @@ function Checkout(props) {
                             </tr>
                             <tr className="sumnary-shipping shipping-row-last">
 
-                              {getTotalPrice(cartList) <= 2000 ?
+                              {shippingMethod && shippingMethod[0] && getTotalPrice(cartList) <= shippingMethod[0]?.requirements[0]?.amount ?
                                 (<>  <td>
                                   <h4 className="summary-subtitle">
                                     Flat Shipping
                                   </h4>
                                 </td>
 
-                                  <td>Rs.100</td></>) : (<>  <td>
+                                  <td>{`Rs.${shippingMethod[0].amount}`}</td></>) : (<>  <td>
                                     <h4 className="summary-subtitle">
                                       Free Shipping
                                     </h4>
@@ -558,7 +568,7 @@ function Checkout(props) {
                               </td>
                               <td className=" pt-0 pb-0">
                                 <p className="summary-total-price ls-s text-primary">
-                                  Rs.{toDecimal(getTotalPrice(cartList) + (getTotalPrice(cartList) <= 2000 ? 100 : 0))}
+                                  Rs.{toDecimal(getTotalPrice(cartList) + (shippingMethod && shippingMethod[0] && getTotalPrice(cartList) <= shippingMethod[0]?.requirements[0]?.amount ? shippingMethod[0].amount : 0))}
                                 </p>
                               </td>
                             </tr>
@@ -629,7 +639,7 @@ function Checkout(props) {
                         <button
                           type="submit"
                           className="btn btn-dark btn-rounded btn-order"
-                          onClick={() => handleCreateOrder()}
+                        // onClick={() => handleCreateOrder()}
                         >
                           Place Order
                         </button>
