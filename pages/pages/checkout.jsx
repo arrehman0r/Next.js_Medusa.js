@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from "react";
 import { connect, useDispatch, useSelector, useStore } from "react-redux";
 import Helmet from "react-helmet";
@@ -15,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { REGIOD_ID, SALES_CHANNEL_ID } from "~/env";
 import { utilsActions } from "~/store/utils";
 import { toast } from "react-toastify";
-
+import Router from 'next/router'; 
 
 function Checkout(props) {
   const { cartList } = props;
@@ -47,6 +48,30 @@ function Checkout(props) {
     if (!cartId) handleCreateCartId();
   }, [cartId]);
 
+  useEffect(() => {
+    // Facebook Pixel Code
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '308078109064492');
+    fbq('track', 'PageView');
+
+    // Track pageviews
+    const handleRouteChange = () => {
+        fbq('track', 'PageView');
+    };
+
+    Router.events.on('routeChangeComplete', handleRouteChange); // Use Router singleton
+    return () => {
+        Router.events.off('routeChangeComplete', handleRouteChange); // Use Router singleton
+    };
+  }, []);
+
   const fetchShippingMethod = async () => {
     const region_id = REGIOD_ID
     const res = await getShippingMethod(region_id)
@@ -56,17 +81,31 @@ function Checkout(props) {
     }
   }
   const triggerFacebookPixelEvent = (orderId, items, orderAmount) => {
-    if (window.fbq) {
-      window.fbq('track', 'Purchase', {
-        value: orderAmount,
-        currency: 'PKR',
-        content_type: 'product',
-        content_ids: items.map(item => item.id),
-        order_id: orderId
-      });
+    console.log("Attempting to trigger Facebook Pixel event");
+    console.log("window.fbq exists:", !!window.fbq);
+    
+    if (typeof window !== 'undefined' && window.fbq) {
+      console.log("Inside fbq condition");
+      console.log("Order ID:", orderId);
+      console.log("Items:", items);
+      console.log("Order Amount:", orderAmount);
+      
+      try {
+        window.fbq('track', 'Purchase', {
+          value: orderAmount,
+          currency: 'PKR',
+          content_type: 'product',
+          content_ids: items.map(item => item.id),
+          order_id: orderId
+        });
+        console.log("Facebook Pixel event triggered successfully");
+      } catch (error) {
+        console.error("Error triggering Facebook Pixel event:", error);
+      }
+    } else {
+      console.log("Unable to trigger Facebook Pixel event. fbq function not found.");
     }
   };
-
   const handleCreateCartId = async () => {
     console.log("handleCreateCartId called")
     if (cartId) return;
