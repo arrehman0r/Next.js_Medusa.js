@@ -2,16 +2,12 @@ import { connect } from "react-redux";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
-
 import ALink from "~/components/features/custom-link";
 import Countdown from "~/components/features/countdown";
 import Quantity from "~/components/features/quantity";
-
 import ProductNav from "~/components/partials/product/product-nav";
-
 import { wishlistActions } from "~/store/wishlist";
 import { cartActions } from "~/store/cart";
-
 import { toDecimal } from "~/utils";
 import ShippingTime from "~/components/features/shipping";
 import FreeReturn from "~/components/features/free-returns";
@@ -121,44 +117,51 @@ function DetailOne(props) {
   const setSizeHandler = (e) => {
     setCurSize(e.target.value);
   };
-
-  const addToCartHandler = () => {
-    if (product.variants[0].inventory_quantity > 0 && cartActive) {
-      if (product.variants.length > 0) {
-        let tmpName = product.title,
-          tmpPrice;
-        tmpName += curColor !== "null" ? "-" + curColor : "";
-        tmpName += curSize !== "null" ? "-" + curSize : "";
-
-        if (product.variants[0]?.prices[1]?.amount === product.variants[0]?.prices[0]?.amount) {
-          tmpPrice = product.variants[0]?.prices[1]?.amount;
-        } else if (
-          !product.variants[0].prices[1]?.amount &&
-          product.variants[0]?.prices[0]?.amount > 0
-        ) {
-          tmpPrice = product.variants[0]?.prices[1]?.amount;
-        } else {
-          tmpPrice = product.variants[0].prices[0]?.amount
-            ? product.variants[0].prices[1]?.amount
-            : product.variants[0].prices[0]?.amount
-        }
-
-        addToCart({
-          ...product,
-          name: tmpName,
-          qty: quantity,
-          sale_price: tmpPrice,
-        });
-      } else {
-        addToCart({
-          ...product,
-          qty: quantity,
-          sale_price: product.variants[0].prices[1]?.amount,
-        });
-      }
+  const triggerFacebookPixelAddToCartEvent = (product) => {
+    if (window.fbq) {
+      console.log("fb pixelmeee" ,window.fbq)
+      window.fbq('track', 'AddToCart', {
+        content_name: product.title,
+        content_ids: product.variants.map(variant => variant.id),
+        content_type: 'product',
+        value: product.variants[0]?.prices[0]?.amount || 0,
+        currency: 'PKR'
+      });
     }
   };
-
+  
+  const addToCartHandler = () => {
+    if (product.variants[0].inventory_quantity > 0 && cartActive) {
+      let tmpName = product.title,
+          tmpPrice;
+  
+      tmpName += curColor !== "null" ? "-" + curColor : "";
+      tmpName += curSize !== "null" ? "-" + curSize : "";
+  
+      if (product.variants[0]?.prices[1]?.amount === product.variants[0]?.prices[0]?.amount) {
+        tmpPrice = product.variants[0]?.prices[1]?.amount;
+      } else if (
+        !product.variants[0].prices[1]?.amount &&
+        product.variants[0]?.prices[0]?.amount > 0
+      ) {
+        tmpPrice = product.variants[0]?.prices[1]?.amount;
+      } else {
+        tmpPrice = product.variants[0].prices[0]?.amount
+          ? product.variants[0].prices[1]?.amount
+          : product.variants[0].prices[0]?.amount;
+      }
+  
+      const addToCartItem = {
+        ...product,
+        name: tmpName,
+        qty: quantity,
+        sale_price: tmpPrice,
+      };
+  
+      addToCart(addToCartItem);
+      triggerFacebookPixelAddToCartEvent(addToCartItem);
+    }
+  };
   const resetValueHandler = (e) => {
     setCurColor("null");
     setCurSize("null");

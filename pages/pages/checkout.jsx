@@ -55,6 +55,17 @@ function Checkout(props) {
       dispatch(utilsActions.setShippingMethod(res.shipping_options));
     }
   }
+  const triggerFacebookPixelEvent = (orderId, items, orderAmount) => {
+    if (window.fbq) {
+      window.fbq('track', 'Purchase', {
+        value: orderAmount,
+        currency: 'PKR',
+        content_type: 'product',
+        content_ids: items.map(item => item.id),
+        order_id: orderId
+      });
+    }
+  };
 
   const handleCreateCartId = async () => {
     console.log("handleCreateCartId called")
@@ -131,6 +142,7 @@ function Checkout(props) {
       console.log("Order created successfully:", confirmOrderRes);
       // You can clear the cart like this:
       if (confirmOrderRes.data?.id) {
+        triggerFacebookPixelEvent(confirmOrderRes?.data?.id,  confirmOrderRes?.data?.items, confirmOrderRes?.data?.total );
         store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
         dispatch(utilsActions.setLoading(false));
         router.push(`/order/${confirmOrderRes.data.id}`);

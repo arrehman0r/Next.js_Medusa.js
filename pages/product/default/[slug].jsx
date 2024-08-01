@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import Helmet from "react-helmet";
 import OwlCarousel from "~/components/features/owl-carousel";
 import MediaOne from "~/components/partials/product/media/media-one";
@@ -48,14 +47,7 @@ export async function getStaticProps({ params }) {
 
 
 function ProductDefault({ product, relatedProducts }) {
-  const [loaded, setLoadingState] = useState(true);
-console.log("product from default page", product)
-  useEffect(() => {
-    if (product) {
-      setLoadingState(false);
-    }
-  }, [product]);
-
+  const loaded = Boolean(product);
   return (
     <main className="main mt-6 single-product">
       <Helmet>
@@ -64,8 +56,8 @@ console.log("product from default page", product)
 
       <h1 className="d-none">Party Shope Web Store - Product Default</h1>
 
-      {product ? (
-        <div className={`page-content mb-10 pb-6 ${loaded ? "d-none" : ""}`}>
+      {loaded ? (
+        <div className={`page-content mb-10 pb-6`}>
           <div className="container vertical">
             <div className="product product-single row mb-7">
               <div className="col-md-6 sticky-sidebar-wrapper">
