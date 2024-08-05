@@ -16,7 +16,6 @@ import { useRouter } from 'next/navigation';
 import { REGIOD_ID, SALES_CHANNEL_ID } from "~/env";
 import { utilsActions } from "~/store/utils";
 import { toast } from "react-toastify";
-import Router from 'next/router'; 
 
 function Checkout(props) {
   const { cartList } = props;
@@ -48,29 +47,6 @@ function Checkout(props) {
     if (!cartId) handleCreateCartId();
   }, [cartId]);
 
-  useEffect(() => {
-    // Facebook Pixel Code
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '308078109064492');
-    fbq('track', 'PageView');
-
-    // Track pageviews
-    const handleRouteChange = () => {
-        fbq('track', 'PageView');
-    };
-
-    Router.events.on('routeChangeComplete', handleRouteChange); // Use Router singleton
-    return () => {
-        Router.events.off('routeChangeComplete', handleRouteChange); // Use Router singleton
-    };
-  }, []);
 
   const fetchShippingMethod = async () => {
     const region_id = REGIOD_ID
@@ -80,31 +56,36 @@ function Checkout(props) {
       dispatch(utilsActions.setShippingMethod(res.shipping_options));
     }
   }
-  const triggerFacebookPixelEvent = (orderId, items, orderAmount) => {
-    console.log("Attempting to trigger Facebook Pixel event");
-    console.log("window.fbq exists:", !!window.fbq);
-    
-    if (typeof window !== 'undefined' && window.fbq) {
-      console.log("Inside fbq condition");
-      console.log("Order ID:", orderId);
-      console.log("Items:", items);
-      console.log("Order Amount:", orderAmount);
+  const triggerFacebookPixelEventAsync = (orderId, items, orderAmount) => {
+    return new Promise((resolve, reject) => {
+      console.log("Attempting to trigger Facebook Pixel event");
+      console.log("window.fbq exists:", !!window.fbq);
       
-      try {
-        window.fbq('track', 'Purchase', {
-          value: orderAmount,
-          currency: 'PKR',
-          content_type: 'product',
-          content_ids: items.map(item => item.id),
-          order_id: orderId
-        });
-        console.log("Facebook Pixel event triggered successfully");
-      } catch (error) {
-        console.error("Error triggering Facebook Pixel event:", error);
+      if (typeof window !== 'undefined' && window.fbq) {
+        console.log("Inside fbq condition");
+        console.log("Order ID:", orderId);
+        console.log("Items:", items);
+        console.log("Order Amount:", orderAmount);
+        
+        try {
+          window.fbq('track', 'Purchase', {
+            currency: 'PKR',
+            value: orderAmount,
+            content_type: 'order',
+            content_ids: items.map(item => item.id),
+            order_id: orderId
+          });
+          console.log("Facebook Pixel event triggered successfully");
+          resolve();
+        } catch (error) {
+          console.error("Error triggering Facebook Pixel event:", error);
+          reject(error);
+        }
+      } else {
+        console.log("Unable to trigger Facebook Pixel event. fbq function not found.");
+        resolve(); // Resolve anyway to not block the flow if fbq is not available
       }
-    } else {
-      console.log("Unable to trigger Facebook Pixel event. fbq function not found.");
-    }
+    });
   };
   const handleCreateCartId = async () => {
     console.log("handleCreateCartId called")
@@ -177,20 +158,21 @@ function Checkout(props) {
       const confirmOrderRes = await confirmOrder(cartId);
       console.log("confirmOrderRes", confirmOrderRes)
       // Call createOrder function with the required data
-
+      if (confirmOrderRes.data?.id) {
+        await triggerFacebookPixelEventAsync(confirmOrderRes?.data?.id,  confirmOrderRes?.data?.items, confirmOrderRes?.data?.total );
       console.log("Order created successfully:", confirmOrderRes);
       // You can clear the cart like this:
-      if (confirmOrderRes.data?.id) {
-        triggerFacebookPixelEvent(confirmOrderRes?.data?.id,  confirmOrderRes?.data?.items, confirmOrderRes?.data?.total );
-        store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
-        dispatch(utilsActions.setLoading(false));
-        router.push(`/order/${confirmOrderRes.data.id}`);
+      store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
+      dispatch(utilsActions.setLoading(false));
+      router.push(`/order/${confirmOrderRes.data.id}`);
+      
       }
       // Handle success response as needed
     } catch (error) {
       console.error("Error creating order:", error);
       dispatch(utilsActions.setLoading(false));
     }
+    
   };
 
   return (

@@ -122,9 +122,9 @@ function DetailOne(props) {
       console.log("fb pixelmeee" ,window.fbq)
       window.fbq('track', 'AddToCart', {
         content_name: product.title,
-        content_ids: product.variants.map(variant => variant.id),
+        content_ids: product.variants[0].id,
         content_type: 'product',
-        value: product.variants[0]?.prices[0]?.amount || 0,
+        value: product.variants[0]?.prices[1]?.amount ||product.variants[0]?.prices[0]?.amount|| 0,
         currency: 'PKR'
       });
     }
