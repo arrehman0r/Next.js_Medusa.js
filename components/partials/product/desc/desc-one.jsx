@@ -1,11 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs";
-
 import ALink from "~/components/features/custom-link";
-
+import PostReview from "~/components/features/post-review";
 import { modalActions } from "~/store/modal";
-
 import { formatDate, toDecimal } from "~/utils";
 
 function DescOne(props) {
@@ -30,17 +28,6 @@ function DescOne(props) {
     }
   }
 
-  const setRating = (e) => {
-    e.preventDefault();
-
-    if (e.currentTarget.parentNode.querySelector(".active")) {
-      e.currentTarget.parentNode
-        .querySelector(".active")
-        .classList.remove("active");
-    }
-
-    e.currentTarget.classList.add("active");
-  };
 
   const showVideoModalHandler = (e) => {
     e.preventDefault();
@@ -59,18 +46,7 @@ function DescOne(props) {
         <Tab className="nav-item">
           <span className="nav-link">Description</span>
         </Tab>
-        {/* {
-                    product  || colors.length > 0 || sizes.length > 0 ?
-                        <Tab className="nav-item">
-                            <span className="nav-link">Additional information</span>
-                        </Tab> : ''
-                } */}
-        {/* {
-                    isGuide ?
-                        <Tab className="nav-item">
-                            <span className="nav-link">Size Guide</span>
-                        </Tab> : ''
-                } */}
+     
 
         <Tab className="nav-item">
           <span className="nav-link">Reviews ({reviews.length})</span>
@@ -90,37 +66,7 @@ function DescOne(props) {
                   dangerouslySetInnerHTML={{ __html: product?.description }}
                 />
               </p>
-              {/* <ul className="mb-8">
-                                <li>Praesent id enim sit amet.Tdio vulputate</li>
-                                <li>Eleifend in in tortor. ellus massa.Dristique sitii</li>
-                                <li>Massa ristique sit amet condim vel</li>
-                                <li>Dilisis Facilisis quis sapien. Praesent id enim sit amet</li>
-                            </ul> */}
-              {/* <h5 className="description-title mb-3 font-weight-semi-bold ls-m">Specifications
-										</h5>
-                            <table className="table">
-                                <tbody>
-                                    <tr>
-                                        <th className="font-weight-semi-bold text-dark pl-0">Material</th>
-                                        <td className="pl-4">Praesent id enim sit amet.Tdio</td>
-                                    </tr>
-                                    <tr>
-                                        <th className="font-weight-semi-bold text-dark pl-0">Claimed Size</th>
-                                        <td className="pl-4">Praesent id enim sit</td>
-                                    </tr>
-                                    <tr>
-                                        <th className="font-weight-semi-bold text-dark pl-0">Recommended Use
-													</th>
-                                        <td className="pl-4">Praesent id enim sit amet.Tdio vulputate eleifend
-														in in tortor. ellus massa. siti</td>
-                                    </tr>
-                                    <tr>
-                                        <th className="font-weight-semi-bold text-dark border-no pl-0">
-                                            Manufacturer</th>
-                                        <td className="border-no pl-4">Praesent id enim</td>
-                                    </tr>
-                                </tbody>
-                            </table> */}
+             
             </div>
             <div className="col-md-6 pl-md-6 pt-4 pt-md-0">
               {/* <h5 className="description-title font-weight-semi-bold ls-m mb-5">Video Description</h5>
@@ -164,136 +110,7 @@ function DescOne(props) {
           </div>
         </TabPanel>
 
-        {/* {product || colors.length > 0 || sizes.length > 0 ? (
-          <TabPanel className="tab-pane product-tab-additional">
-            <ul className="list-none">
-              {product.categories.length > 0 ? (
-                <li>
-                  <label>Categories:</label>
-                  <p>
-                    {product.categories.map((item, index) => (
-                      <React.Fragment key={item.title + "-" + index}>
-                        {item.title}
-                        {index < product.categories.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    ))}
-                  </p>
-                </li>
-              ) : (
-                ""
-              )}
-
-             {
-                                    product.brands.length > 0 ?
-                                        <li><label>Brands:</label>
-                                            <p>
-                                                { product.brands.map( ( item, index ) => (
-                                                    <React.Fragment key={ item.title + '-' + index }>
-                                                        { item.title }
-                                                        { index < product.brands.length - 1 ? ', ' : "" }
-                                                    </React.Fragment>
-                                                ) ) }
-                                            </p>
-                                        </li> : ""
-                                }
-
-              {colors.length > 0 ? (
-                <li>
-                  <label>Color:</label>
-                  <p>
-                    {colors.map((item, index) => (
-                      <React.Fragment key={item.title + "-" + index}>
-                        {item.title}
-                        {index < colors.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    ))}
-                  </p>
-                </li>
-              ) : (
-                ""
-              )}
-
-              {sizes.length > 0 ? (
-                <li>
-                  <label>Size:</label>
-                  <p>
-                    {sizes.map((item, index) => (
-                      <React.Fragment key={item.title + "-" + index}>
-                        {item.title}
-                        {index < sizes.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    ))}
-                  </p>
-                </li>
-              ) : (
-                ""
-              )}
-            </ul>
-          </TabPanel>
-        ) : (
-          ""
-        )} */}
-        {/* {
-                    isGuide ?
-                        <TabPanel className="tab-pane product-tab-size-guide">
-                            <figure className="size-image mt-4 mb-4">
-                                <img src="./images/size_guide.png" alt="Size Guide Image" width="217"
-                                    height="398" />
-                            </figure>
-                            <figure className="size-table mt-4 mb-4">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>SIZE</th>
-                                            <th>CHEST(IN.)</th>
-                                            <th>WEIST(IN.)</th>
-                                            <th>HIPS(IN.)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th>XS</th>
-                                            <td>34-36</td>
-                                            <td>27-29</td>
-                                            <td>34.5-36.5</td>
-                                        </tr>
-                                        <tr>
-                                            <th>S</th>
-                                            <td>36-38</td>
-                                            <td>29-31</td>
-                                            <td>36.5-38.5</td>
-                                        </tr>
-                                        <tr>
-                                            <th>M</th>
-                                            <td>38-40</td>
-                                            <td>31-33</td>
-                                            <td>38.5-40.5</td>
-                                        </tr>
-                                        <tr>
-                                            <th>L</th>
-                                            <td>40-42</td>
-                                            <td>33-36</td>
-                                            <td>40.5-43.5</td>
-                                        </tr>
-                                        <tr>
-                                            <th>XL</th>
-                                            <td>42-45</td>
-                                            <td>36-40</td>
-                                            <td>43.5-47.5</td>
-                                        </tr>
-                                        <tr>
-                                            <th>XXL</th>
-                                            <td>45-48</td>
-                                            <td>40-44</td>
-                                            <td>47.5-51.5</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </figure>
-                        </TabPanel> : ''
-                } */}
-
-        <TabPanel className="tab-pane product-tab-reviews">
+              <TabPanel className="tab-pane product-tab-reviews">
           {product.rating_count === 0 ? (
             <div className="comments mb-2 pt-2 pb-2 border-no">
               There are no reviews yet.
@@ -303,8 +120,8 @@ function DescOne(props) {
               <ul>
                 <li>
                   {reviews.map((review) => (
-                    <div className="comment" key={review.id}>
-                      <figure className="comment-media">
+                    <div className="comment mb-2" key={review.id}>
+                      {/* <figure className="comment-media">
                         <ALink href="#">
                           <img
                             src="./images/blog/comments/1.jpg"
@@ -313,7 +130,7 @@ function DescOne(props) {
                             height="100"
                           />
                         </ALink>
-                      </figure>
+                      </figure> */}
                       <div className="comment-body">
                         <div className="comment-rating ratings-container mb-0">
                           <div className="ratings-full">
@@ -327,29 +144,30 @@ function DescOne(props) {
                           </div>
                         </div>
                         <div className="comment-user">
-                          <span className="comment-date text-body">
-                            {formatDate(review.created_at)}
-                          </span>
+                         
                           <h4>
-                            <ALink href="#">{review?.customer?.first_name || "Jhon Cena"}</ALink>
-                          </h4>
+                            <ALink href="#">{review?.customer?.first_name || "Jhon Cena"}</ALink> 
+                          </h4> <span className="comment-date text-body">
+                           ({formatDate(review.created_at)})
+                          </span>
                         </div>
 
                         <div className="comment-content">
                           <p>
                             {review.content}
                           </p>
+                          { review?.images?.length > 0 &&  
                           <figure className="comment-media">
-                            {review.images.map((image) => (
-                              <ALink href="#">
+                            { review.images?.map((image) => (
+                             <div key={image.id}>
                                 <img
-                                  src="./images/blog/comments/1.jpg"
+                                  src={image.url}
                                   alt="avatar"
                                   width="100"
                                   height="100"
                                 />
-                              </ALink>))}
-                          </figure>
+                              </div>))}
+                          </figure>}
                         </div>
 
                       </div>
@@ -362,98 +180,8 @@ function DescOne(props) {
               </ul>
             </div>
           )}
-
-          <div className="reply">
-            <div className="title-wrapper text-left">
-              <h3 className="title title-simple text-left text-normal">
-                {reviews.length > 0
-                  ? "Add a Review"
-                  : "Be The First To Review “" + product.title + "”"}
-              </h3>
-              <p>
-                Your email address will not be published. Required fields are
-                marked *
-              </p>
-            </div>
-            <div className="rating-form">
-              <label htmlFor="rating" className="text-dark">
-                Your rating *{" "}
-              </label>
-              <span className="rating-stars selected">
-                {[1, 2, 3, 4, 5].map((num, index) => (
-                  <a
-                    className={`star-${num}`}
-                    href="#"
-                    onClick={setRating}
-                    key={"star-" + index}
-                  >
-                    {num}
-                  </a>
-                ))}
-              </span>
-
-              <select
-                name="rating"
-                id="rating"
-                required=""
-                style={{ display: "none" }}
-              >
-                <option value="">Rate…</option>
-                <option value="5">Perfect</option>
-                <option value="4">Good</option>
-                <option value="3">Average</option>
-                <option value="2">Not that bad</option>
-                <option value="1">Very poor</option>
-              </select>
-            </div>
-            <form action="#">
-              <textarea
-                id="reply-message"
-                cols="30"
-                rows="6"
-                className="form-control mb-4"
-                placeholder="Comment *"
-                required
-              ></textarea>
-              <div className="row">
-                <div className="col-md-6 mb-5">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="reply-name"
-                    name="reply-name"
-                    placeholder="Name *"
-                    required
-                  />
-                </div>
-                <div className="col-md-6 mb-5">
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="reply-email"
-                    name="reply-email"
-                    placeholder="Email *"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="form-checkbox mb-4">
-                <input
-                  type="checkbox"
-                  className="custom-checkbox"
-                  id="signin-remember"
-                  name="signin-remember"
-                />
-                <label className="form-control-label" htmlFor="signin-remember">
-                  Save my name, email, and website in this browser for the next
-                  time I comment.
-                </label>
-              </div>
-              <button type="submit" className="btn btn-primary btn-rounded">
-                Submit<i className="d-icon-arrow-right"></i>
-              </button>
-            </form>
-          </div>
+<PostReview reviews={reviews} product={product}/>
+        
         </TabPanel>
       </div>
     </Tabs>

@@ -43,10 +43,12 @@ export const getAllProducts = () => {
 };
 
 export const getProductReviews = (id) => {
-  console.log("id for revire in call",id)
   return makeRequest("get", `product-reviews?product_id=${id}`);
 };
 
+export const postProductReview = (body) => {
+  return makeRequest("post", "product-reviews", body);
+};
 
 export const retrieveOrder = (id) => {
   return makeRequest("get", `orders/${id}`)
