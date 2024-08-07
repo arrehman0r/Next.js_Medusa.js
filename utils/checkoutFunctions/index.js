@@ -1,7 +1,7 @@
 import { getShippingMethod, createCart, addLineItem, addShippingCharges, updateCart, createCheckOut, confirmOrder } from "~/server/axiosApi";
 import { REGIOD_ID, SALES_CHANNEL_ID } from "~/env";
 import { utilsActions } from "~/store/utils";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
 export const fetchShippingMethod = async (dispatch) => {
   const region_id = REGIOD_ID;
@@ -111,7 +111,7 @@ export const handleCreateOrder = async (e, dispatch, store, router, cartId, cart
       console.log("Order created successfully:", confirmOrderRes);
       store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
       dispatch(utilsActions.setLoading(false));
-      router.push(`/order/${confirmOrderRes.data.id}`);
+      // router.push(`/order/${confirmOrderRes.data.id}`);
     }
   } catch (error) {
     console.error("Error creating order:", error);

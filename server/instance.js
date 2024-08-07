@@ -2,7 +2,7 @@ import axios from "axios";
 // import { ToastNotification } from "../Utils/ToastNotifications";
 
 
-export const baseURL = "http://203.161.43.125:9002/store"
+export const baseURL = "https://partyi.store/store"
 
 
 export const instance = axios.create({

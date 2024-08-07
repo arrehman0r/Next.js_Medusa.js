@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 const AppLoader = () => {
     const loading = useSelector(({ utils }) => utils.loading);
 
-    console.log("Loading state is:", loading);
+  
 
     if (!loading) {
         return null; // Return null if loading is false

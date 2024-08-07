@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
 import Modal from 'react-modal';
 
 import ALink from '~/components/features/custom-link';
+import { useDispatch, useSelector } from 'react-redux';
+import { userActions } from '~/store/user';
+import { useRouter } from 'next/navigation';
 
 const customStyles = {
     overlay: {
@@ -13,51 +16,75 @@ const customStyles = {
 
 let index = 0;
 
-Modal.setAppElement( "#__next" );
+Modal.setAppElement("#__next");
 
 function LoginModal() {
-    const [ open, setOpen ] = useState( false );
-
+    const [open, setOpen] = useState(false);
+    const dispatch = useDispatch();
+    const router = useRouter();
     function closeModal() {
-        document.querySelector( ".ReactModal__Overlay" ).classList.add( 'removed' );
-        document.querySelector( ".login-popup.ReactModal__Content" ).classList.remove( "ReactModal__Content--after-open" );
-        document.querySelector( ".login-popup-overlay.ReactModal__Overlay" ).classList.remove( "ReactModal__Overlay--after-open" );
-        setTimeout( () => {
-            setOpen( false );
-        }, 330 );
+        document.querySelector(".ReactModal__Overlay").classList.add('removed');
+        document.querySelector(".login-popup.ReactModal__Content").classList.remove("ReactModal__Content--after-open");
+        document.querySelector(".login-popup-overlay.ReactModal__Overlay").classList.remove("ReactModal__Overlay--after-open");
+        setTimeout(() => {
+            setOpen(false);
+        }, 330);
     }
 
-    function openModal( e, loginIndex = 0 ) {
+    function openModal(e, loginIndex = 0) {
         e.preventDefault();
         index = loginIndex;
-        setOpen( true );
+        setOpen(true);
     }
-
+    const user = useSelector((state) => state.user.user);
+    const handleLogout = () => {
+        dispatch(userActions.setUser(null))
+    }
+    console.log("user is ::", user)
     return (
         <>
-            <a className="login-link d-lg-show" href="#" onClick={ openModal }>
-                <i className="d-icon-user"></i>Sign in</a>
-            <span className="delimiter">/</span>
-            <a className="register-link ml-0" onClick={ ( e ) => openModal( e, 1 ) } href="#">Register</a>
+            {user && user.first_name ? (
+                <a className="login-link d-lg-show" href="#" onClick={() => router.push("/pages/login")}>
+                    <i className="d-icon-user"></i>{user.first_name}
+                </a>
+            ) : (
+                <a className="login-link d-lg-show" href="#" onClick={()=> router.push("/pages/login")}>
+                    <i className="d-icon-user"></i>Sign in
+                </a>
+            )}
+            {user && user.first_name ? <>
+                <span className="delimiter">/</span>
+                <a className="register-link ml-0" onClick={handleLogout} href="#">
+                    Logout
+                </a>
+            </> :
+                <>
+                    <span className="delimiter">/</span>
+                    <a className="register-link ml-0" onClick={() => router.push("/pages/login")} href="#">
+                        Register
+                    </a>
+                </>
+            }
 
             {
                 open ?
                     <Modal
-                        isOpen={ open }
-                        onRequestClose={ closeModal }
-                        style={ customStyles }
+                        isOpen={open}
+                        onRequestClose={closeModal}
+                        style={customStyles}
                         contentLabel="Login Modal"
                         className="login-popup"
                         overlayClassName="login-popup-overlay"
-                        shouldReturnFocusAfterClose={ false }
+                        shouldReturnFocusAfterClose={false}
                         id="login-modal"
                     >
                         <div className="form-box">
                             <div className="tab tab-nav-simple tab-nav-boxed form-tab">
-                                <Tabs selectedTabClassName="active" selectedTabPanelClassName="active" defaultIndex={ index }>
+                                <Tabs selectedTabClassName="active" selectedTabPanelClassName="active" defaultIndex={index}>
                                     <TabList className="nav nav-tabs nav-fill align-items-center border-no justify-content-center mb-5">
                                         <Tab className="nav-item">
                                             <span className="nav-link border-no lh-1 ls-normal">Sign in</span>
+
                                         </Tab>
                                         <li className="delimiter">or</li>
                                         <Tab className="nav-item">
@@ -126,11 +153,11 @@ function LoginModal() {
                             </div>
                         </div>
 
-                        <button title="Close (Esc)" type="button" className="mfp-close" onClick={ closeModal }><span>×</span></button>
+                        <button title="Close (Esc)" type="button" className="mfp-close" onClick={closeModal}><span>×</span></button>
                     </Modal> : ''
             }
         </>
     )
 }
 
-export default ( LoginModal );
+export default (LoginModal);

@@ -28,7 +28,8 @@ export const addShippingCharges = (id, body) => {
 
 export const updateCart = (id, body) => {
   return makeRequest("post", `carts/${id}`, body);
-;}
+  ;
+}
 export const createCheckOut = (id) => {
   return makeRequest("post", `carts/${id}/payment-sessions`);
 };
@@ -41,6 +42,24 @@ export const getAllProducts = () => {
   return makeRequest("get", "products");
 };
 
+export const getProductReviews = (id) => {
+  console.log("id for revire in call",id)
+  return makeRequest("get", `product-reviews?product_id=${id}`);
+};
+
+
 export const retrieveOrder = (id) => {
   return makeRequest("get", `orders/${id}`)
+}
+
+export const registerUser = (body) => {
+  return makeRequest("post", "customers", body);
+};
+
+export const loginUser = (body, token) => {
+  return makeRequest("post", "auth", body, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
 }

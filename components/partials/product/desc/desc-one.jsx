@@ -6,10 +6,10 @@ import ALink from "~/components/features/custom-link";
 
 import { modalActions } from "~/store/modal";
 
-import { toDecimal } from "~/utils";
+import { formatDate, toDecimal } from "~/utils";
 
 function DescOne(props) {
-  const { product, isGuide = true, isDivider = true, openModal } = props;
+  const { product, reviews, isGuide = true, isDivider = true, openModal } = props;
 
   let colors = [],
     sizes = [];
@@ -73,7 +73,7 @@ function DescOne(props) {
                 } */}
 
         <Tab className="nav-item">
-          <span className="nav-link">Reviews ({product.reviews})</span>
+          <span className="nav-link">Reviews ({reviews.length})</span>
         </Tab>
       </TabList>
 
@@ -302,113 +302,71 @@ function DescOne(props) {
             <div className="comments mb-8 pt-2 pb-2 border-no">
               <ul>
                 <li>
-                  <div className="comment">
-                    <figure className="comment-media">
-                      <ALink href="#">
-                        <img
-                          src="./images/blog/comments/1.jpg"
-                          alt="avatar"
-                          width="100"
-                          height="100"
-                        />
-                      </ALink>
-                    </figure>
-                    <div className="comment-body">
-                      <div className="comment-rating ratings-container mb-0">
-                        <div className="ratings-full">
-                          <span
-                            className="ratings"
-                            style={{ width: product.ratings * 20 + "%" }}
-                          ></span>
-                          <span className="tooltiptext tooltip-top">
-                            {toDecimal(product.rating_count)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="comment-user">
-                        <span className="comment-date text-body">
-                          September 22, 2020 at 9:42 pm
-                        </span>
-                        <h4>
-                          <ALink href="#">John Doe</ALink>
-                        </h4>
-                      </div>
-
-                      <div className="comment-content">
-                        <p>
-                          Sed pretium, ligula sollicitudin laoreet viverra,
-                          tortor libero sodales leo, eget blandit nunc tortor eu
-                          nibh. Nullam mollis. Ut justo. Suspendisse potenti.
-                          Sed egestas, ante et vulputate volutpat, eros pede
-                          semper est, vitae luctus metus libero eu augue.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-
-                {product.reviews > 1 ? (
-                  <li>
-                    <div className="comment">
+                  {reviews.map((review) => (
+                    <div className="comment" key={review.id}>
                       <figure className="comment-media">
                         <ALink href="#">
                           <img
-                            src="./images/blog/comments/2.jpg"
+                            src="./images/blog/comments/1.jpg"
                             alt="avatar"
                             width="100"
                             height="100"
                           />
                         </ALink>
                       </figure>
-
                       <div className="comment-body">
                         <div className="comment-rating ratings-container mb-0">
                           <div className="ratings-full">
                             <span
                               className="ratings"
-                              style={{ width: product.ratings * 20 + "%" }}
+                              style={{ width: review.ratings * 20 + "%" }}
                             ></span>
                             <span className="tooltiptext tooltip-top">
-                              {toDecimal(product.ratings)}
+                              {toDecimal(review.ratings)}
                             </span>
                           </div>
                         </div>
                         <div className="comment-user">
                           <span className="comment-date text-body">
-                            September 22, 2020 at 9:42 pm
+                            {formatDate(review.created_at)}
                           </span>
                           <h4>
-                            <ALink href="#">John Doe</ALink>
+                            <ALink href="#">{review?.customer?.first_name || "Jhon Cena"}</ALink>
                           </h4>
                         </div>
 
                         <div className="comment-content">
                           <p>
-                            Sed pretium, ligula sollicitudin laoreet viverra,
-                            tortor libero sodales leo, eget blandit nunc tortor
-                            eu nibh. Nullam mollis. Ut justo. Suspendisse
-                            potenti. Sed egestas, ante et vulputate volutpat,
-                            eros pede semper est, vitae luctus metus libero eu
-                            augue. Morbi purus libero, faucibus adipiscing,
-                            commodo quis, avida id, est. Sed lectus. Praesent
-                            elementum hendrerit tortor. Sed semper lorem at
-                            felis. Vestibulum volutpat.
+                            {review.content}
                           </p>
+                          <figure className="comment-media">
+                            {review.images.map((image) => (
+                              <ALink href="#">
+                                <img
+                                  src="./images/blog/comments/1.jpg"
+                                  alt="avatar"
+                                  width="100"
+                                  height="100"
+                                />
+                              </ALink>))}
+                          </figure>
                         </div>
+
                       </div>
+
                     </div>
-                  </li>
-                ) : (
-                  ""
-                )}
+                  ))}
+                </li>
+
+
               </ul>
             </div>
           )}
 
-          {/* <div className="reply">
+          <div className="reply">
             <div className="title-wrapper text-left">
               <h3 className="title title-simple text-left text-normal">
-                {product.reviews > 0
+                {reviews.length > 0
                   ? "Add a Review"
                   : "Be The First To Review “" + product.title + "”"}
               </h3>
@@ -495,7 +453,7 @@ function DescOne(props) {
                 Submit<i className="d-icon-arrow-right"></i>
               </button>
             </form>
-          </div> */}
+          </div>
         </TabPanel>
       </div>
     </Tabs>

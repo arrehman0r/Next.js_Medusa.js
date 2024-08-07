@@ -78,7 +78,7 @@ function Layout({ children, closeQuickview }) {
                 autoClose={3000}
                 duration={300}
                 newestOnTo={true}
-                className="toast-container"
+                // className="toast-container"
                 position="bottom-left"
                 closeButton={false}
                 hideProgressBar={true}

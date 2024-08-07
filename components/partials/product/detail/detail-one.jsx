@@ -20,6 +20,7 @@ function DetailOne(props) {
     adClass = "",
     isNav = true,
     product,
+    reviews
   } = props;
   const { toggleWishlist, addToCart, wishlist } = props;
   const [curColor, setCurColor] = useState("null");
@@ -27,6 +28,7 @@ function DetailOne(props) {
   const [curIndex, setCurIndex] = useState(-1);
   const [cartActive, setCartActive] = useState(false);
   const [quantity, setQauntity] = useState(1);
+  const [fbEventFire, setfbEventFire] = useState(false)
   // let product = data && product;
 
   // decide if the product is wishlisted
@@ -118,15 +120,18 @@ function DetailOne(props) {
     setCurSize(e.target.value);
   };
   const triggerFacebookPixelAddToCartEvent = (product) => {
-    if (window.fbq) {
+
+    if (window.fbq && !fbEventFire) {
       console.log("fb pixelmeee" ,window.fbq)
       window.fbq('track', 'AddToCart', {
         content_name: product.title,
         content_ids: product.variants[0].id,
         content_type: 'product',
         value: product.variants[0]?.prices[1]?.amount ||product.variants[0]?.prices[0]?.amount|| 0,
-        currency: 'PKR'
+        currency: 'PKR',
+        quantity: product.qty
       });
+      setfbEventFire(true)
     }
   };
   
@@ -268,15 +273,15 @@ function DetailOne(props) {
         <div className="ratings-full">
           <span
             className="ratings"
-            style={{ width: 20 * product.ratings + "%" }}
+            style={{ width: 20 * reviews[0].ratings + "%" }}
           ></span>
           <span className="tooltiptext tooltip-top">
-            {toDecimal(product.ratings)}
+            {toDecimal(reviews[0].ratings)}
           </span>
         </div>
 
         <ALink href="#" className="rating-reviews">
-          ( {product.reviews} reviews )
+          ( {reviews.length} reviews )
         </ALink>
       </div>
 

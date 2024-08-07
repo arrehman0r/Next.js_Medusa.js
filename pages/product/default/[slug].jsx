@@ -5,8 +5,8 @@ import MediaOne from "~/components/partials/product/media/media-one";
 import DetailOne from "~/components/partials/product/detail/detail-one";
 import DescOne from "~/components/partials/product/desc/desc-one";
 import RelatedProducts from "~/components/partials/product/related-products";
-import { mainSlider17 } from "~/utils/data/carousel";
-import { getProduct } from "~/server/axiosApi";
+// import { mainSlider17 } from "~/utils/data/carousel";
+import { getProduct, getProductReviews } from "~/server/axiosApi";
 import { getAllProducts } from "../../../server/axiosApi";
 
 export async function getStaticPaths() {
@@ -28,26 +28,32 @@ export async function getStaticProps({ params }) {
     const productRes = await getProduct(slug);
     const product = productRes?.product;
     
-    // Ensure related_ids is defined and is an array before mapping
-    const relatedProducts = product && Array.isArray(product.related_ids)
-      ? await Promise.all(
-          product.related_ids.map(async (id) => await getProduct(id))
-        )
-      : [];
+    // Fetch reviews here
+    const reviewsRes = await getProductReviews(slug);
+    console.log("reviews res ", reviewsRes.reviews)
+    const reviews = reviewsRes?.reviews || [];
 
-    return { props: { product, relatedProducts } };
+    const relatedProducts = product && Array.isArray(product.related_ids)
+    ? await Promise.all(
+        product.related_ids.map(async (id) => await getProduct(id))
+      )
+    : [];
+    return { props: { product, relatedProducts, reviews } };
   } catch (error) {
-    console.error("Error fetching product:", error);
+    console.error("Error fetching product or reviews:", error);
     return {
-      props: { product: null, relatedProducts: [] },
+      props: { product: null, relatedProducts: [], reviews: [] },
       notFound: true,
     };
   }
 }
 
 
-function ProductDefault({ product, relatedProducts }) {
+function ProductDefault({ product, relatedProducts, reviews }) {
   const loaded = Boolean(product);
+
+console.log("review are", reviews)
+
   return (
     <main className="main mt-6 single-product">
       <Helmet>
@@ -65,11 +71,11 @@ function ProductDefault({ product, relatedProducts }) {
               </div>
 
               <div className="col-md-6">
-                <DetailOne product={product} />
+                <DetailOne product={product} reviews={reviews} />
               </div>
             </div>
             {console.log("this is single product", product)}
-            <DescOne product={product} />
+            <DescOne product={product} reviews={reviews} />
             {relatedProducts &&
               <RelatedProducts products={relatedProducts} />}
           </div>

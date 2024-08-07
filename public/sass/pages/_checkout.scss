@@ -161,6 +161,12 @@
             opacity: .9;
         }
     }
+    .disabled-btn-order {
+        width: 100%;
+        border-color: grey;
+        background-color: grey;
+       
+    }
     .card { background: transparent; }
     .card-header {
         font-size: 1.4rem;
