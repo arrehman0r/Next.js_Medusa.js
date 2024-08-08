@@ -65,7 +65,7 @@ function ProductTwo(props) {
           {product.images.length >= 1 ? (
             <LazyLoadImage
               alt="product"
-              src={product.images[1].url}
+              src={product.images[1]?.url}
               threshold={500}
               width="300"
               height="338"
@@ -200,7 +200,7 @@ function ProductTwo(props) {
               style={{ width: 20 * product.ratings + "%" }}
             ></span>
             <span className="tooltiptext tooltip-top">
-              {toDecimal(product.ratings)}
+              {toDecimal(product?.ratings)}
             </span>
           </div>
 
