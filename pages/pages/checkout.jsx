@@ -14,7 +14,7 @@ function Checkout(props) {
   const cartId = useSelector((state) => state.cart.cartId);
   const shippingMethod = useSelector((state) => state.utils.shippingMethod);
   const loading = useSelector((state) => state.utils.loading);
-  // console.log("this is cart list", cartList)
+  const user = useSelector((state) => state.user.user);
   const [customerDetails, setCustomerDetails] = useState({
     firstName: "",
     lastName: "",
@@ -26,7 +26,7 @@ function Checkout(props) {
     phone: "",
     email: "",
   });
-
+console.log("user from checkout", user?.id)
   useEffect(() => {
     if (!shippingMethod || shippingMethod.length === 0) {
       fetchShippingMethod(dispatch);
@@ -37,15 +37,16 @@ function Checkout(props) {
     if (!cartId) handleCreateCartId(cartId, dispatch);
   }, [cartId, dispatch]);
 
-  const handleInputChange = useCallback((e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCustomerDetails((prevState) => ({ ...prevState, [name]: value }));
-  }, []);
+  };
 
-  const handleFormSubmit = useCallback((e) => {
-    handleCreateOrder(e, dispatch, store, router, cartId, cartList, customerDetails, shippingMethod);
-  }, [dispatch, store, router, cartId, cartList, customerDetails, shippingMethod]);
-
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+      handleCreateOrder(e, dispatch, store, cartId, cartList, customerDetails, shippingMethod, user);
+   
+  };
   return (
     <main className="main checkout">
       <Helmet>

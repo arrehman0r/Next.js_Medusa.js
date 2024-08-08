@@ -383,7 +383,7 @@
             }
         }
     }
-    .ratings::before { color: $body-color; }
+    .ratings::before { color:  #D26E4B;; }
     .form-checkbox {
         font-size: 1.3rem;
     }
@@ -434,7 +434,7 @@
 	a.active:before,
 	a:hover:before {
 		content: "\e955\e955\e955\e955\e955";
-        color: $secondary-color;
+        color: #D26E4B;
 	}
 
 	.star-1 {

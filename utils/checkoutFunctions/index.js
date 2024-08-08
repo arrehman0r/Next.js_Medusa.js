@@ -1,6 +1,7 @@
 import { getShippingMethod, createCart, addLineItem, addShippingCharges, updateCart, createCheckOut, confirmOrder } from "~/server/axiosApi";
 import { REGIOD_ID, SALES_CHANNEL_ID } from "~/env";
 import { utilsActions } from "~/store/utils";
+import { useSelector } from "react-redux";
 // import { toast } from "react-toastify";
 
 export const fetchShippingMethod = async (dispatch) => {
@@ -63,8 +64,9 @@ export const triggerFacebookPixelEventAsync = (orderId, items, orderAmount) => {
   });
 };
 
-export const handleCreateOrder = async (e, dispatch, store, router, cartId, cartList, customerDetails, shippingMethod) => {
+export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, customerDetails, shippingMethod, user) => {
   dispatch(utilsActions.setLoading(true));
+  
   console.log("handleCreateOrder called");
   e.preventDefault();
   const lineItems = cartList.map(item => ({
@@ -73,16 +75,16 @@ export const handleCreateOrder = async (e, dispatch, store, router, cartId, cart
   }));
 
   await Promise.all(lineItems.map(item => addLineItem(cartId, item)));
-  console.log("line items ", lineItems);
+  console.log("user in checkout funtr ", user.id);
   const orderDetails = {
-    email: customerDetails.email || "info@partyshope.com",
-    customer_id: customerDetails.id || "",
+    email: user?.email || customerDetails.email || "info@partyshope.com",
+    customer_id: user?.id || "", 
     shipping_address: {
       address_1: customerDetails.address1,
       address_2: customerDetails?.address2 || "",
       country_code: "pk",
       first_name: customerDetails?.firstName,
-      last_name: customerDetails?.lastName || "",
+      last_name:  customerDetails?.lastName || "",
       phone: customerDetails?.phone,
       city: customerDetails?.city
     },
@@ -96,7 +98,7 @@ export const handleCreateOrder = async (e, dispatch, store, router, cartId, cart
       city: customerDetails?.city
     },
   };
-  console.log("shippingMethod", shippingMethod);
+  console.log("orderDetails", orderDetails);
   const addDeliveryChargesBody = { option_id: shippingMethod[0]?.id };
   console.log("shippingMethod[0]?.id", shippingMethod[0]?.id);
   try {

@@ -1,9 +1,9 @@
 import axios from "axios";
 // import { ToastNotification } from "../Utils/ToastNotifications";
+import Cookies from "js-cookie";  // Make sure to install js-cookie if not already installed
+import { NEXT_PUBLIC_PROD_URL } from "~/env";
 
-
-export const baseURL = "https://partyi.store/store"
-
+export const baseURL = NEXT_PUBLIC_PROD_URL;
 
 export const instance = axios.create({
   baseURL: baseURL,
@@ -13,28 +13,35 @@ export const instance = axios.create({
   },
 });
 
-export const makeRequest = async (type, path, body, options={}) => {
+export const makeRequest = async (type, path, body, token, options = {}) => {
   // Add api_key and user_id, ip and then add body parameter
   body = {
     ...body,
   };
+
+  const connectSid = Cookies.get("connect.sid");
+  console.log("connect.sid cookie:", connectSid);
+
   const config = {
-    timeout: 30000,  
+    timeout: 30000,
+    headers: {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+      "connect.sid": connectSid,  // Include connect.sid cookie
+    },
     ...options,
   };
-  
-  const res = instance[type](path, body,config)
+
+  const res = instance[type](path, body, config)
     .then(function (response) {
       return response;
     })
     .catch(function (error) {
       console.log(error, "error");
 
-
-      
       if (error.code === 401) {
         // ToastNotification("error", "Session expired. Please login again");
-      }else if (error.code === 'ECONNABORTED' ) {
+      } else if (error.code === "ECONNABORTED") {
         // ToastNotification("error", "Request timed out");
       }
       return error;
@@ -64,8 +71,8 @@ instance.interceptors.response.use(
   function (error) {
     if (error?.response?.status === 401) {
       // window.location.reload(true);
-      window.location.href = "/";
-      window.localStorage.clear();
+      // window.location.href = "/";
+      // window.localStorage.clear();
     }
     const code = error?.response && error?.response?.status;
     return Promise.reject({

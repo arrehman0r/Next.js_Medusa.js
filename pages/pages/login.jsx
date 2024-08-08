@@ -21,10 +21,12 @@ function Login() {
 
     const handleInputChange = useCallback((e) => {
         const { name, value } = e.target;
+        console.log("name", name, "value", value)
         setCustomerDetails((prevState) => ({ ...prevState, [name]: value }));
     }, []);
 
     const handleRegisterUser = async (e) => {
+        console.log("register click")
         e.preventDefault();
         const body = {
             email: customerDetails.email,
@@ -166,7 +168,7 @@ function Login() {
                                                         className="form-control"
                                                         id="name"
                                                         name="name"
-                                                        text         placeholder="Your Name *"
+                                                        placeholder="Your Name *"
                                                         value={customerDetails.name}
                                                         onChange={handleInputChange}
                                                         required
@@ -210,7 +212,7 @@ function Login() {
                                                         <label className="form-control-label" htmlFor="register-agree-2">I agree to the privacy policy</label>
                                                     </div>
                                                 </div>
-                                                <button className="btn btn-dark btn-block btn-rounded" type="submit">Register</button>
+                                                <button className="btn btn-dark btn-block btn-rounded" type="submit" onClick={handleRegisterUser}>Register</button>
                                             </form>
                                             <div className="form-choice text-center">
                                                 <label className="ls-m">or Register With</label>

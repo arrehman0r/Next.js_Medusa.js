@@ -486,6 +486,7 @@
   align-items: center;
   margin-left: 1px;
   line-height: 1.1;
+  
   @include print_css(product, rating);
 }
 .ratings-full {
@@ -503,7 +504,7 @@
 
   &::before {
     content: "\e955 ""\e955 ""\e955 ""\e955 ""\e955";
-    color: rgba(0, 0, 0, 0.16);
+    color: #D26E4B;
     font-family: "riode";
   }
 

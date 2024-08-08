@@ -58,10 +58,6 @@ export const registerUser = (body) => {
   return makeRequest("post", "customers", body);
 };
 
-export const loginUser = (body, token) => {
-  return makeRequest("post", "auth", body, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export const loginUser = (body) => {
+  return makeRequest("post", "auth", body)
 }

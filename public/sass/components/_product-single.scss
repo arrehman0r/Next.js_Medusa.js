@@ -616,8 +616,16 @@
 
 .product-image.large-image img {
   max-width: none;
+  
 }
-
+@media (min-width: 768px) {
+  .product-image.large-image img{
+    max-height: 70vh; /* Ensures the image height is within the viewport */
+    object-fit: contain; /* Maintains aspect ratio without cropping */
+    width: auto;
+    margin: 0 auto;
+  }
+}
 .product-details.sticky {
   position: sticky;
   top: 88px;

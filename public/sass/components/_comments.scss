@@ -51,6 +51,9 @@
 		box-shadow: 0 2px 0 $primary-color;
 	}
 }
+.comment-media-div{ 
+	display: flex;
+	gap: 0.5rem;
 .comment-media {
     max-width: 6rem;
     flex: 0 0 6rem;
@@ -62,16 +65,16 @@
 		height: 100%;
 		object-fit: cover;
 	}
-}
+}}
 .comment-user {
-	margin-bottom: -1rem;
+	margin-bottom: -0.3rem;
 	display: flex;
 	align-items: center;
-	gap: .5rem;
+	gap: 1rem;
 	h4 {
-		margin-bottom: 1rem;
+		margin-bottom: 0rem;
 		font-weight: 700;
-		font-size: 1.8rem;
+		font-size: 1.5rem;
 		line-height: 1;
 		letter-spacing: 0;
 		a {

@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Tabs, Tab, TabList, TabPanel } from "react-tabs";
 import ALink from "~/components/features/custom-link";
+import ImageModal from "~/components/features/modals/image-modal";
 import PostReview from "~/components/features/post-review";
 import { modalActions } from "~/store/modal";
 import { formatDate, toDecimal } from "~/utils";
 
 function DescOne(props) {
   const { product, reviews, isGuide = true, isDivider = true, openModal } = props;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
 
   let colors = [],
     sizes = [];
@@ -35,7 +38,17 @@ function DescOne(props) {
     openModal(link);
   };
 
+  const showImageModalHandler = (images) => {
+    setSelectedImages(images);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedImages([]);
+  };
   return (
+    <div>
     <Tabs
       className="tab tab-nav-simple product-tabs"
       selectedTabClassName="show"
@@ -46,7 +59,7 @@ function DescOne(props) {
         <Tab className="nav-item">
           <span className="nav-link">Description</span>
         </Tab>
-     
+
 
         <Tab className="nav-item">
           <span className="nav-link">Reviews ({reviews.length})</span>
@@ -66,7 +79,7 @@ function DescOne(props) {
                   dangerouslySetInnerHTML={{ __html: product?.description }}
                 />
               </p>
-             
+
             </div>
             <div className="col-md-6 pl-md-6 pt-4 pt-md-0">
               {/* <h5 className="description-title font-weight-semi-bold ls-m mb-5">Video Description</h5>
@@ -110,7 +123,7 @@ function DescOne(props) {
           </div>
         </TabPanel>
 
-              <TabPanel className="tab-pane product-tab-reviews">
+        <TabPanel className="tab-pane product-tab-reviews">
           {product.rating_count === 0 ? (
             <div className="comments mb-2 pt-2 pb-2 border-no">
               There are no reviews yet.
@@ -133,6 +146,13 @@ function DescOne(props) {
                       </figure> */}
                       <div className="comment-body">
                         <div className="comment-rating ratings-container mb-0">
+                         
+                        </div>
+                        <div className="comment-user">
+
+                          <h4>
+                            <ALink href="#">{review?.customer?.first_name || "Jhon Cena"}</ALink>
+                          </h4>
                           <div className="ratings-full">
                             <span
                               className="ratings"
@@ -142,32 +162,31 @@ function DescOne(props) {
                               {toDecimal(review.ratings)}
                             </span>
                           </div>
-                        </div>
-                        <div className="comment-user">
-                         
-                          <h4>
-                            <ALink href="#">{review?.customer?.first_name || "Jhon Cena"}</ALink> 
-                          </h4> <span className="comment-date text-body">
+                          {/* <span className="comment-date text-body">
                            ({formatDate(review.created_at)})
-                          </span>
+                          </span> */}
                         </div>
 
                         <div className="comment-content">
                           <p>
                             {review.content}
                           </p>
-                          { review?.images?.length > 0 &&  
-                          <figure className="comment-media">
-                            { review.images?.map((image) => (
-                             <div key={image.id}>
-                                <img
-                                  src={image.url}
-                                  alt="avatar"
-                                  width="100"
-                                  height="100"
-                                />
-                              </div>))}
-                          </figure>}
+                          <div className="comment-media-div">
+                          {review?.images?.length > 0 &&
+                            review.images?.map((image) => (
+                              <figure className="comment-media">
+
+                                <div key={image.id}>
+                                  {console.log("images array", image)}
+                                  <img
+                                    src={image.url}
+                                    alt="avatar"
+                                    width="100"
+                                    height="100"
+                                    onClick={() => showImageModalHandler(review.images)}
+                                  />
+                                </div>
+                              </figure>))}</div>
                         </div>
 
                       </div>
@@ -180,11 +199,17 @@ function DescOne(props) {
               </ul>
             </div>
           )}
-<PostReview reviews={reviews} product={product}/>
-        
+          <PostReview reviews={reviews} product={product} />
+
         </TabPanel>
       </div>
     </Tabs>
+    <ImageModal
+        isOpen={isModalOpen}
+        closeModal={closeModal}
+        images={selectedImages}
+      />
+    </div>
   );
 }
 
