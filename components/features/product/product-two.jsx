@@ -62,7 +62,7 @@ function ProductTwo(props) {
             height="338"
           />
 
-          {product.images.length >= 1 ? (
+          {product.images.length >= 1 && (
             <LazyLoadImage
               alt="product"
               src={product.images[1]?.url}
@@ -72,8 +72,7 @@ function ProductTwo(props) {
               effect="opacity"
               wrapperClassName="product-image-hover"
             />
-          ) : (
-            ""
+     
           )}
         </ALink>
 
@@ -208,7 +207,7 @@ function ProductTwo(props) {
             href={`/product/default/${product.id}`}
             className="rating-reviews"
           >
-            ( {product.reviews} reviews )
+            ( {product?.reviews} reviews )
           </ALink>
         </div>
       </div>

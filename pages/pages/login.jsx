@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation';
-import React, { useState, useCallback } from 'react';
+import React, { useRef, useCallback, useMemo } from 'react';
 import Helmet from 'react-helmet';
 import { useDispatch } from 'react-redux';
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
@@ -9,11 +9,10 @@ import { loginUser, registerUser } from '~/server/axiosApi';
 import { userActions } from '~/store/user';
 import { utilsActions } from '~/store/utils';
 
-
 function Login() {
     const dispatch = useDispatch();
-    const router = useRouter()
-    const [customerDetails, setCustomerDetails] = useState({
+    const router = useRouter();
+    const customerDetailsRef = useRef({
         name: "",
         email: "",
         password: ""
@@ -21,45 +20,35 @@ function Login() {
 
     const handleInputChange = useCallback((e) => {
         const { name, value } = e.target;
-        console.log("name", name, "value", value)
-        setCustomerDetails((prevState) => ({ ...prevState, [name]: value }));
+        customerDetailsRef.current[name] = value;
     }, []);
-
-    const handleRegisterUser = async (e) => {
-        console.log("register click")
+console.log("logini")
+    const handleRegisterUser = useCallback(async (e) => {
         e.preventDefault();
-        const body = {
-            email: customerDetails.email,
-            password: customerDetails.password,
-            first_name: customerDetails.name
-        };
-        if (customerDetails.email && customerDetails.password) {
-            dispatch(utilsActions.setLoading(true))
-            try {
-                const res = await registerUser(body);
-                dispatch(userActions.setUser(res?.customer));
-                dispatch(utilsActions.setLoading(false))
-                router.push("/")
-                toast.success("registeration success");
-            }
-            catch (error) {
-                console.log("error registering user", error);
-                dispatch(utilsActions.setLoading(false))
-                toast.error("some error occurs", error)
-            }
-        }
-    };
-
-    const handleLoginUser = async (e) => {
-        e.preventDefault();
-        const body = {
-            email: customerDetails.email,
-            password: customerDetails.password,
-        };
-        if (customerDetails.email && customerDetails.password) {
+        const { email, password, name } = customerDetailsRef.current;
+        if (email && password) {
             dispatch(utilsActions.setLoading(true));
             try {
-                const res = await loginUser(body);
+                const res = await registerUser({ email, password, first_name: name });
+                dispatch(userActions.setUser(res?.customer));
+                router.push("/");
+                toast.success("Registration success");
+            } catch (error) {
+                console.log("error registering user", error);
+                toast.error("Some error occurred");
+            } finally {
+                dispatch(utilsActions.setLoading(false));
+            }
+        }
+    }, [dispatch, router]);
+
+    const handleLoginUser = useCallback(async (e) => {
+        e.preventDefault();
+        const { email, password } = customerDetailsRef.current;
+        if (email && password) {
+            dispatch(utilsActions.setLoading(true));
+            try {
+                const res = await loginUser({ email, password });
                 if (res && res.customer) {
                     dispatch(userActions.setUser(res.customer));
                     toast.success("Login success");
@@ -74,14 +63,61 @@ function Login() {
                 dispatch(utilsActions.setLoading(false));
             }
         }
-    };
-    
-    return (
-        <main className="main">
-            <Helmet>
-                <title>Party Shope Web Store | Login</title>
-            </Helmet>
+    }, [dispatch, router]);
 
+    const renderLoginForm = useMemo(() => (
+        <form onSubmit={handleLoginUser}>
+            <div className="form-group mb-3">
+                <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Username or Email Address *"
+                    onChange={handleInputChange}
+                    required
+                />
+            </div>
+            <div className="form-group">
+                <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    placeholder="Password *"
+                    name="password"
+                    onChange={handleInputChange}
+                    required
+                />
+            </div>
+
+            <div className="form-choice text-center">
+                                                <label className="ls-m">or Login With</label>
+                                                <div className="social-links">
+                                                    <ALink href="#" className="social-link social-google fab fa-google border-no"></ALink>
+                                                    <ALink href="#" className="social-link social-facebook fab fa-facebook-f border-no"></ALink>
+                                                    <ALink href="#" className="social-link social-twitter fab fa-twitter border-no"></ALink>
+                                                </div>
+                                            </div>
+          
+          
+            <button className="btn btn-dark btn-block btn-rounded" type="submit">Login</button>
+        </form>
+    ), [handleLoginUser, handleInputChange]);
+
+    const renderRegisterForm = useMemo(() => (
+        <form onSubmit={handleRegisterUser}>
+            <div className="form-group">
+                <label htmlFor="name">Name:</label>
+                <input
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    name="name"
+                    placeholder="Your Name *"
+                    onChange={handleInputChange}
+                    required
+                />
+            </div>
             <h1 className="d-none">Party Shope Web Store - Login</h1>
             <nav className="breadcrumb-nav">
                 <div className="container">
@@ -92,6 +128,16 @@ function Login() {
                     </ul>
                 </div>
             </nav>
+            <button className="btn btn-dark btn-block btn-rounded" type="submit">Register</button>
+        </form>
+    ), [handleRegisterUser, handleInputChange]);
+
+    return (
+        <main className="main">
+            <Helmet>
+                <title>Party Shope Web Store | Login</title>
+            </Helmet>
+            {/* Rest of the component structure */}
             <div className="page-content mt-6 pb-2 mb-10">
                 <div className="container">
                     <div className="login-popup">
@@ -110,118 +156,10 @@ function Login() {
 
                                     <div className="tab-content">
                                         <TabPanel className="tab-pane">
-                                            <form onSubmit={handleLoginUser}>
-                                                <div className="form-group mb-3">
-                                                    <input
-                                                        type="emial"
-                                                        className="form-control"
-                                                        id="email"
-                                                        name="email"
-                                                        placeholder="Username or Email Address *"
-                                                        value={customerDetails.email}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <input
-                                                        type="password"
-                                                        className="form-control"
-                                                        id="password"
-                                                        placeholder="Password *"
-                                                        name="password"
-                                                        value={customerDetails.password}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="form-footer">
-                                                    <div className="form-checkbox">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="custom-checkbox"
-                                                            id="signin-remember-2"
-                                                            name="signin-remember"
-                                                        />
-                                                        <label className="form-control-label" htmlFor="signin-remember-2">Remember me</label>
-                                                    </div>
-                                                    <ALink href="#" className="lost-link">Lost your password?</ALink>
-                                                </div>
-                                                <button className="btn btn-dark btn-block btn-rounded" type="submit">Login</button>
-                                            </form>
-                                            <div className="form-choice text-center">
-                                                <label className="ls-m">or Login With</label>
-                                                <div className="social-links">
-                                                    <ALink href="#" className="social-link social-google fab fa-google border-no"></ALink>
-                                                    <ALink href="#" className="social-link social-facebook fab fa-facebook-f border-no"></ALink>
-                                                    <ALink href="#" className="social-link social-twitter fab fa-twitter border-no"></ALink>
-                                                </div>
-                                            </div>
+                                            {renderLoginForm}
                                         </TabPanel>
-
                                         <TabPanel className="tab-pane">
-                                            <form onSubmit={handleRegisterUser}>
-                                                <div className="form-group">
-                                                    <label htmlFor="name">Name:</label>
-                                                    <input
-                                                        type="name"
-                                                        className="form-control"
-                                                        id="name"
-                                                        name="name"
-                                                        placeholder="Your Name *"
-                                                        value={customerDetails.name}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label htmlFor="register-email-2">Your email address:</label>
-                                                    <input
-                                                        type="email"
-                                                        className="form-control"
-                                                        id="email"
-                                                        name="email"
-                                                        placeholder="Your Email address *"
-                                                        value={customerDetails.email}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label htmlFor="register-password-2">Password:</label>
-                                                    <input
-                                                        type="password"
-                                                        className="form-control"
-                                                        id="password"
-                                                        name="password"
-                                                        placeholder="Password *"
-                                                        value={customerDetails.password}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="form-footer">
-                                                    <div className="form-checkbox">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="custom-checkbox"
-                                                            id="register-agree-2"
-                                                            name="register-agree"
-                                                            required
-                                                        />
-                                                        <label className="form-control-label" htmlFor="register-agree-2">I agree to the privacy policy</label>
-                                                    </div>
-                                                </div>
-                                                <button className="btn btn-dark btn-block btn-rounded" type="submit" onClick={handleRegisterUser}>Register</button>
-                                            </form>
-                                            <div className="form-choice text-center">
-                                                <label className="ls-m">or Register With</label>
-                                                <div className="social-links">
-                                                    <ALink href="#" className="social-link social-google fab fa-google border-no"></ALink>
-                                                    <ALink href="#" className="social-link social-facebook fab fa-facebook-f border-no"></ALink>
-                                                    <ALink href="#" className="social-link social-twitter fab fa-twitter border-no"></ALink>
-                                                </div>
-                                            </div>
+                                            {renderRegisterForm}
                                         </TabPanel>
                                     </div>
                                 </Tabs>

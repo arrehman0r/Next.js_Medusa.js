@@ -1,7 +1,7 @@
 import ALink from '~/components/features/custom-link';
 
 export default function ShopBanner ( props ) {
-    const { subTitle = '', title = "Party Shop", current = "Party Shop" } = props;
+    const { subTitle = '', title = "Party Shope", current = "Party Shope" } = props;
 
     return (
         <div className="page-header" style={ { backgroundImage: `url( ./images/shop/page-header-back.jpg )`, backgroundColor: "#3C63A4" } }>

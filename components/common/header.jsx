@@ -54,8 +54,8 @@ export default function Header( props ) {
                         </div> */}
 
                         <span className="divider"></span>
-                        <ALink href="/contact-us" className="contact d-lg-show"><i className="d-icon-map"></i>Contact</ALink>
-                        <ALink href="#" className="help d-lg-show"><i className="d-icon-info"></i> Need Help</ALink>
+                        <ALink href="/pages/contact-us" className="contact d-lg-show"><i className="d-icon-map"></i>Contact</ALink>
+                        <ALink href="/pages/contact-us" className="help d-lg-show"><i className="d-icon-info"></i> Need Help</ALink>
                         <LoginModal />
                     </div>
                 </div>

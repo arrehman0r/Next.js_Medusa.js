@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useRef, useMemo, useCallback } from "react";
 import { connect, useDispatch, useSelector, useStore } from "react-redux";
 import Helmet from "react-helmet";
 import ALink from "~/components/features/custom-link";
@@ -15,7 +15,8 @@ function Checkout(props) {
   const shippingMethod = useSelector((state) => state.utils.shippingMethod);
   const loading = useSelector((state) => state.utils.loading);
   const user = useSelector((state) => state.user.user);
-  const [customerDetails, setCustomerDetails] = useState({
+
+  const customerDetailsRef = useRef({
     firstName: "",
     lastName: "",
     address1: "",
@@ -26,7 +27,9 @@ function Checkout(props) {
     phone: "",
     email: "",
   });
-console.log("user from checkout", user?.id)
+
+  console.log("user from checkout", user?.id);
+
   useEffect(() => {
     if (!shippingMethod || shippingMethod.length === 0) {
       fetchShippingMethod(dispatch);
@@ -37,16 +40,26 @@ console.log("user from checkout", user?.id)
     if (!cartId) handleCreateCartId(cartId, dispatch);
   }, [cartId, dispatch]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setCustomerDetails((prevState) => ({ ...prevState, [name]: value }));
-  };
+    customerDetailsRef.current[name] = value;
+  }, []);
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
-      handleCreateOrder(e, dispatch, store, cartId, cartList, customerDetails, shippingMethod, user);
-   
-  };
+    handleCreateOrder(e, dispatch, store, cartId, cartList, customerDetailsRef.current, shippingMethod, user);
+  }, [dispatch, store, cartId, cartList, shippingMethod, user]);
+
+  const memoizedCheckoutForm = useMemo(() => (
+    <CheckoutForm 
+      handleFormSubmit={handleFormSubmit} 
+      handleInputChange={handleInputChange} 
+      cartList={cartList}  
+      shippingMethod={shippingMethod} 
+      loading={loading}
+    />
+  ), [handleFormSubmit, handleInputChange, cartList, shippingMethod, loading]);
+
   return (
     <main className="main checkout">
       <Helmet>
@@ -71,13 +84,7 @@ console.log("user from checkout", user?.id)
         </div>
         <div className="container mt-7">
           {cartList.length > 0 ? (
-            <CheckoutForm 
-              handleFormSubmit={handleFormSubmit} 
-              handleInputChange={handleInputChange} 
-              cartList={cartList}  
-              shippingMethod={shippingMethod} 
-              loading={loading}
-            />
+            memoizedCheckoutForm
           ) : (
             <div className="empty-cart text-center">
               <p>Your cart is currently empty.</p>
@@ -104,4 +111,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(Checkout);
+export default React.memo(connect(mapStateToProps)(Checkout));
