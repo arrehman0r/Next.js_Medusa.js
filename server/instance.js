@@ -21,7 +21,7 @@ export const makeRequest = async (type, path, body, token, options = {}) => {
 
   const connectSid = Cookies.get("connect.sid");
   console.log("connect.sid cookie:", connectSid);
-
+  console.log("All cookies:", Cookies.get());
   const config = {
     timeout: 30000,
     headers: {
