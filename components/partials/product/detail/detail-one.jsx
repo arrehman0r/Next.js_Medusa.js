@@ -273,15 +273,15 @@ function DetailOne(props) {
         <div className="ratings-full">
           <span
             className="ratings"
-            style={{ width: 20 * reviews[0].ratings + "%" }}
+            style={{ width: 20 * reviews[0]?.ratings + "%" }}
           ></span>
           <span className="tooltiptext tooltip-top">
-            {toDecimal(reviews[0].ratings)}
+            {toDecimal(reviews[0]?.ratings)}
           </span>
         </div>
 
         <ALink href="#" className="rating-reviews">
-          ( {reviews.length} reviews )
+          ( {reviews?.length} reviews )
         </ALink>
       </div>
 
@@ -292,7 +292,7 @@ function DetailOne(props) {
 
       {product && product.variants.length > 0 ? (
         <>
-          {product.variants[0].color ? (
+          {product.variants[0]?.color ? (
             <div className="product-form product-variants product-color">
               <label>Color:</label>
               <div className="select-box">
