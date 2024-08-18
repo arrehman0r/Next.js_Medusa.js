@@ -40,7 +40,7 @@ function LoginModal() {
     const handleLogout = () => {
         dispatch(userActions.setUser(null))
     }
-    console.log("user is ::", user)
+  
     return (
         <>
             {user && user.first_name ? (

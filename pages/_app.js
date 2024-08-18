@@ -8,15 +8,19 @@ import { demoActions } from '~/store/demo';
 import { currentDemo } from '~/server/queries';
 import "~/public/sass/style.scss";
 import { useRouter } from 'next/router'; // Correct import for useRouter
+import { utilsActions } from '~/store/utils.js';
 
 const App = ({ Component, pageProps }) => {
     const store = useStore();
-   
+  
+
 
     useEffect(() => {
         // ReactPixel.init('308078109064492');
         if (store.getState().demo.current !== currentDemo) {
             store.dispatch(demoActions.refreshStore(currentDemo));
+            store.dispatch(utilsActions.setLoading(false));
+
         }
     }, [store]);
 

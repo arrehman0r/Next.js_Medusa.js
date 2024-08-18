@@ -28,7 +28,6 @@ function Checkout(props) {
     email: "",
   });
 
-  console.log("user from checkout", user?.id);
 
   useEffect(() => {
     if (!shippingMethod || shippingMethod.length === 0) {
@@ -47,8 +46,8 @@ function Checkout(props) {
 
   const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
-    handleCreateOrder(e, dispatch, store, cartId, cartList, customerDetailsRef.current, shippingMethod, user);
-  }, [dispatch, store, cartId, cartList, shippingMethod, user]);
+    handleCreateOrder(e, dispatch, store, cartId, cartList, customerDetailsRef.current, shippingMethod, user, router);
+  }, [dispatch, store, cartId, cartList, shippingMethod, user, router]);
 
   const memoizedCheckoutForm = useMemo(() => (
     <CheckoutForm 

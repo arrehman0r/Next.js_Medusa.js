@@ -64,7 +64,7 @@ export const triggerFacebookPixelEventAsync = (orderId, items, orderAmount) => {
   });
 };
 
-export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, customerDetails, shippingMethod, user) => {
+export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, customerDetails, shippingMethod, user, router) => {
   dispatch(utilsActions.setLoading(true));
   
   console.log("handleCreateOrder called");
@@ -75,7 +75,6 @@ export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, cus
   }));
 
   await Promise.all(lineItems.map(item => addLineItem(cartId, item)));
-  console.log("user in checkout funtr ", user.id);
   const orderDetails = {
     email: user?.email || customerDetails.email || "info@partyshope.com",
     customer_id: user?.id || "", 
@@ -113,7 +112,7 @@ export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, cus
       console.log("Order created successfully:", confirmOrderRes);
       store.dispatch({ type: "REFRESH_STORE", payload: { current: 1 } });
       dispatch(utilsActions.setLoading(false));
-      // router.push(`/order/${confirmOrderRes.data.id}`);
+      router.push(`/order/${confirmOrderRes.data.id}`);
     }
   } catch (error) {
     console.error("Error creating order:", error);
