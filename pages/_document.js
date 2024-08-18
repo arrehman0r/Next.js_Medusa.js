@@ -70,9 +70,6 @@ class MyDocument extends Document {
             type="text/css"
             href="/vendor/owl-carousel/owl.carousel.min.css"
           />
-          
-        <meta name="robots" content="noindex, nofollow" />
-     
         </Head>
         <body>
           <noscript>
