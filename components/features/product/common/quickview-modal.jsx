@@ -31,66 +31,63 @@ const customStyles = {
 Modal.setAppElement( '#__next' );
 
 function Quickview( props ) {
-    const { slug, closeQuickview, isOpen } = props;
+    const { slug, closeQuickview, isOpen , product, openBuyNow, setOpenBuyNow} = props;
+console.log("is open is ", openBuyNow, product)
+    if ( !openBuyNow ) return <div></div>;
 
-    if ( !isOpen ) return <div></div>;
+    // const [ loaded, setLoadingState ] = useState( false );
 
-    const [ loaded, setLoadingState ] = useState( false );
+    // const { data, loading } = useQuery( GET_PRODUCT, { variables: { slug, onlyData: true } } );
+    // const product = data && data.product;
 
-    const { data, loading } = useQuery( GET_PRODUCT, { variables: { slug, onlyData: true } } );
-    const product = data && data.product;
+    // useEffect( () => {
+    //     setTimeout( () => {
+    //         if ( !loading && data && isOpen && document.querySelector( '.quickview-modal' ) )
+    //             imagesLoaded( '.quickview-modal' ).on( 'done', function () {
+    //                 setLoadingState( true );
+    //                 window.jQuery( '.quickview-modal .product-single-carousel' ).trigger( 'refresh.owl.carousel' );
+    //             } ).on( 'progress', function () {
+    //                 setLoadingState( false );
+    //             } );
+    //     }, 200 );
+    // }, [ data, isOpen ] );
 
-    useEffect( () => {
-        setTimeout( () => {
-            if ( !loading && data && isOpen && document.querySelector( '.quickview-modal' ) )
-                imagesLoaded( '.quickview-modal' ).on( 'done', function () {
-                    setLoadingState( true );
-                    window.jQuery( '.quickview-modal .product-single-carousel' ).trigger( 'refresh.owl.carousel' );
-                } ).on( 'progress', function () {
-                    setLoadingState( false );
-                } );
-        }, 200 );
-    }, [ data, isOpen ] );
+    // if ( slug === '' || !product || !product.data ) return '';
 
-    if ( slug === '' || !product || !product.data ) return '';
-
-    const closeQuick = () => {
-        document.querySelector( ".ReactModal__Overlay" ).classList.add( 'removed' );
-        document.querySelector( '.quickview-modal' ).classList.add( 'removed' );
-        setLoadingState( false )
-        setTimeout( () => {
-            closeQuickview();
-        }, 330 );
-    }
+    // const closeQuick = () => {
+    //     document.querySelector( ".ReactModal__Overlay" ).classList.add( 'removed' );
+    //     document.querySelector( '.quickview-modal' ).classList.add( 'removed' );
+    //     setLoadingState( false )
+    //     setTimeout( () => {
+    //         closeQuickview(false);
+    //     }, 330 );
+    // }
 
     return (
         <Modal
-            isOpen={ isOpen }
+            isOpen={ openBuyNow }
             contentLabel="QuickView"
-            onRequestClose={ closeQuick }
+            onRequestClose={ ()=> closeQuickview(false) }
             shouldFocusAfterRender={ false }
             style={ customStyles }
             className="product product-single row product-popup quickview-modal" id="product-quickview"
         >
             <>
-                <div className={ `row p-0 m-0 ${ loaded ? '' : 'd-none' }` } >
+                <div className={ `row p-0 m-0 ${ product ? '' : 'd-none' }` } >
                     <div className="col-md-6">
                         <div className="product-gallery mb-md-0 pb-0">
                             <div className="product-label-group">
-                                { product.data.is_new ? <label className="product-label label-new">New</label> : '' }
-                                { product.data.is_top ? <label className="product-label label-top">Top</label> : '' }
-                                {
-                                    product.data.discount > 0 ?
-                                        product.data.variants.length === 0 ?
-                                            <label className="product-label label-sale">{ product.data.discount }% OFF</label>
-                                            : <label className="product-label label-sale">Sale</label>
-                                        : ''
-                                }
+                                {/* { product.variants.prices.length> 0 ? <label className="product-label label-new">New</label> : '' } */}
+                                {/* { product.data.is_top ? <label className="product-label label-top">Top</label> : '' } */}
+                              
+                                            {/* <label className="product-label label-sale">{ product.data.discount }% OFF</label> */}
+                                            <label className="product-label label-sale">Sale</label>
+                                     
                             </div>
 
                             <OwlCarousel adClass="product-single-carousel owl-theme owl-nav-inner" options={ mainSlider3 }>
                                 {
-                                    product && product.data && product.data.large_pictures.map( ( item, index ) =>
+                                    product && product.images.length > 0 && product.images.map( ( item, index ) =>
                                         <Magnifier
                                             key={ 'quickview-image-' + index }
                                             imageSrc={   item.url }
@@ -99,7 +96,7 @@ function Quickview( props ) {
                                             dragToMove={ false }
                                             mouseActivation="hover"
                                             cursorStyleActive="crosshair"
-                                            className="product-image large-image"
+                                            className="product-buy-now-image"
                                         />
                                     )
                                 }
@@ -108,14 +105,14 @@ function Quickview( props ) {
                     </div>
 
                     <div className="col-md-6">
-                        <DetailOne data={ data } adClass="scrollable pr-3" isNav={ false } />
+                        <DetailOne product={ product } adClass="scrollable pr-3" isNav={ false } />
                     </div>
                 </div>
 
-                <button title="Close (Esc)" type="button" className="mfp-close p-0" onClick={ closeQuick } ><span>×</span></button>
+                <button title="Close (Esc)" type="button" className="mfp-close p-0" onClick={ ()=> setOpenBuyNow(false) } ><span>×</span></button>
             </>
             {
-                loaded ? '' : <div className="product row p-0 m-0 skeleton-body mfp-product" >
+                product ? '' : <div className="product row p-0 m-0 skeleton-body mfp-product" >
                     <div className="col-md-6">
                         <div className="skel-pro-gallery">
                         </div>

@@ -11,6 +11,7 @@ import { cartActions } from "~/store/cart";
 import { toDecimal } from "~/utils";
 import ShippingTime from "~/components/features/shipping";
 import FreeReturn from "~/components/features/free-returns";
+import QuickviewModal from "~/components/features/product/common/quickview-modal";
 
 function DetailOne(props) {
   let router = useRouter();
@@ -28,7 +29,8 @@ function DetailOne(props) {
   const [curIndex, setCurIndex] = useState(-1);
   const [cartActive, setCartActive] = useState(false);
   const [quantity, setQauntity] = useState(1);
-  const [fbEventFire, setfbEventFire] = useState(false)
+  const [fbEventFire, setfbEventFire] = useState(false);
+  const [openBuyNow, setOpenBuyNow] =  useState(false)
   // let product = data && product;
 
   // decide if the product is wishlisted
@@ -112,6 +114,8 @@ function DetailOne(props) {
     }
   };
 
+  console.log("product====",product)
+
   const setColorHandler = (e) => {
     setCurColor(e.target.value);
   };
@@ -122,27 +126,27 @@ function DetailOne(props) {
   const triggerFacebookPixelAddToCartEvent = (product) => {
 
     if (window.fbq && !fbEventFire) {
-      console.log("fb pixelmeee" ,window.fbq)
+      console.log("fb pixelmeee", window.fbq)
       window.fbq('track', 'AddToCart', {
         content_name: product.title,
         content_ids: product.variants[0].id,
         content_type: 'product',
-        value: product.variants[0]?.prices[1]?.amount ||product.variants[0]?.prices[0]?.amount|| 0,
+        value: product.variants[0]?.prices[1]?.amount || product.variants[0]?.prices[0]?.amount || 0,
         currency: 'PKR',
         quantity: product.qty
       });
       setfbEventFire(true)
     }
   };
-  
+
   const addToCartHandler = () => {
     if (product.variants[0].inventory_quantity > 0 && cartActive) {
       let tmpName = product.title,
-          tmpPrice;
-  
+        tmpPrice;
+
       tmpName += curColor !== "null" ? "-" + curColor : "";
       tmpName += curSize !== "null" ? "-" + curSize : "";
-  
+
       if (product.variants[0]?.prices[1]?.amount === product.variants[0]?.prices[0]?.amount) {
         tmpPrice = product.variants[0]?.prices[1]?.amount;
       } else if (
@@ -155,14 +159,14 @@ function DetailOne(props) {
           ? product.variants[0].prices[1]?.amount
           : product.variants[0].prices[0]?.amount;
       }
-  
+
       const addToCartItem = {
         ...product,
         name: tmpName,
         qty: quantity,
         sale_price: tmpPrice,
       };
-  
+
       addToCart(addToCartItem);
       triggerFacebookPixelAddToCartEvent(addToCartItem);
     }
@@ -199,6 +203,13 @@ function DetailOne(props) {
   function changeQty(qty) {
     setQauntity(qty);
   }
+
+  const handleBuyNow = () => {
+    // console.log("Before setOpenBuyNow:", openBuyNow);
+    setOpenBuyNow(!openBuyNow);
+    // console.log("After setOpenBuyNow:", openBuyNow);
+};
+
 
   return (
     <div className={"product-details " + adClass}>
@@ -241,7 +252,7 @@ function DetailOne(props) {
       </div> */}
       <FreeReturn />
       <div className="product-price mb-2">
-        {product.variants?.[0]?.prices[1]?.amount !== product.variants?.[0]?.prices[0]?.amount ? (
+        {product && product.variants[0]?.prices[1]?.amount !== product.variants?.[0]?.prices[0]?.amount ? (
           product.variants.length === 0 ||
             (product.variants.length > 0 && product.variants[0]?.prices[1]?.amount) ? (
             <>
@@ -255,12 +266,12 @@ function DetailOne(props) {
             </del>
           )
         ) : (
-          <ins className="new-price">Rs.{toDecimal(product.variants[0]?.prices[0]?.amount)}</ins>
+          <ins className="new-price">Rs.{toDecimal(product?.variants[0]?.prices[0]?.amount)}</ins>
         )}
       </div>
 
 
-      {product.variants[0]?.prices[1]?.amount !== product.variants[0]?.prices[0]?.amount
+      {product?.variants[0]?.prices[1]?.amount !== product?.variants[0]?.prices[0]?.amount
         ? (
           <Countdown type={2} />
         ) : (
@@ -269,6 +280,7 @@ function DetailOne(props) {
       <div>
         <ShippingTime />
       </div>
+      { reviews && 
       <div className="ratings-container">
         <div className="ratings-full">
           <span
@@ -283,7 +295,7 @@ function DetailOne(props) {
         <ALink href="#" className="rating-reviews">
           ( {reviews?.length} reviews )
         </ALink>
-      </div>
+      </div> } 
 
       <div
         className="product-short-desc"
@@ -515,27 +527,49 @@ function DetailOne(props) {
                   <i className="d-icon-bag"></i>Add to Cart
                 </button>
               </div>
+              <button
+              // className={`btn-product btn-cart text-normal ls-normal font-weight-semi-bold ${cartActive ? "" : "disabled"
+              //   }`}
+              // onClick={addToCartHandler}
+              >
+                <i className="d-icon-bag"></i>Add to Cartttt
+              </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="product-form product-qty pb-0">
-          <label className="d-none">QTY:</label>
+        <div>
+          <div className="product-form product-qty pb-0">
+            <label className="d-none">QTY:</label>
+            <div className="product-form-group">
+              <Quantity
+                max={product.variants[0].inventory_quantity}
+                product={product}
+                onChangeQty={changeQty}
+              />
+              <button
+                className={`btn-product btn-cart text-normal ls-normal font-weight-semi-bold ${cartActive ? "" : "disabled"
+                  }`}
+                onClick={addToCartHandler}
+              >
+                <i className="d-icon-bag"></i>Add to Cart
+              </button>
+              
+            </div>
+
+          </div>
           <div className="product-form-group">
-            <Quantity
-              max={product.variants[0].inventory_quantity}
-              product={product}
-              onChangeQty={changeQty}
-            />
             <button
-              className={`btn-product btn-cart text-normal ls-normal font-weight-semi-bold ${cartActive ? "" : "disabled"
-                }`}
-              onClick={addToCartHandler}
+           className="btn-buy-now"
+                disabled={!cartActive}
+              onClick={handleBuyNow}
             >
-              <i className="d-icon-bag"></i>Add to Cart
+             <i class="fas fa-shipping-fast"></i>Buy Now
             </button>
           </div>
+          
         </div>
+
       )}
 
       <hr className="product-divider mb-3"></hr>
@@ -568,6 +602,8 @@ function DetailOne(props) {
           {isWishlisted ? "Browse wishlist" : "Add to Wishlist"}
         </a>
       </div>
+      <QuickviewModal openBuyNow = {openBuyNow} closeQuickview= {setOpenBuyNow} product= {product}/>
+
     </div>
   );
 }

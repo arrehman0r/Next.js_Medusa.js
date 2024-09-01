@@ -46,7 +46,7 @@
         height: 3rem,
       ),
       btn-cart: (
-        max-width: 20.7rem,
+        max-width: 100%,
         height: 4.5rem,
       ),
       rating: (
@@ -462,6 +462,7 @@
     font-size: 1.4rem;
     border-radius: 0.3rem;
     background-color: $primary-color;
+    margin-right: 0;
     color: #fff;
     cursor: pointer;
     @include css(max-width, product-single, btn-cart, max-width);
@@ -494,10 +495,11 @@
   position: relative;
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   flex-wrap: wrap;
   flex: 1;
   > * {
-    margin-bottom: 1rem;
+    margin-bottom: 0.1rem;
   }
   > :not(:last-child) {
     margin-right: 2rem;
@@ -629,4 +631,39 @@
 .product-details.sticky {
   position: sticky;
   top: 88px;
+}
+
+.btn-buy-now{
+
+    border: 0;
+    flex: 1;
+    min-width: 13rem;
+    font-size: 1.4rem;
+    border-radius: 0.3rem;
+    background-color: red;
+    color: #fff;
+    cursor: pointer;
+    max-width: 100%;
+    height: 4.5rem;
+
+    &.disabled {
+      background-color: #e4eaec;
+      cursor: not-allowed;
+      color: $grey-color;
+    }
+
+    i {
+      margin-right: 0.8rem;
+      margin-top: -1px;
+      font-size: 1.8rem;
+      line-height: 0;
+      vertical-align: middle;
+      &::before {
+        margin: 0;
+      }
+    }
+    &:hover:not(.disabled) {
+      background-color: darken($primary-color, 7%);
+    }
+  
 }
