@@ -1,7 +1,7 @@
-import axios from "axios";
-// import { ToastNotification } from "../Utils/ToastNotifications";
-import Cookies from "js-cookie";  // Make sure to install js-cookie if not already installed
-import { NEXT_PUBLIC_PROD_URL } from "~/env";
+import axios from 'axios';
+import { NEXT_PUBLIC_PROD_URL } from '../env';
+// import { ToastNotification } from '../Utils/ToastNotifications';
+import Cookies from 'js-cookie';
 
 export const baseURL = NEXT_PUBLIC_PROD_URL;
 
@@ -9,54 +9,82 @@ export const instance = axios.create({
   baseURL: baseURL,
   timeout: 30000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-export const makeRequest = async (type, path, body, token, options = {}) => {
-  // Add api_key and user_id, ip and then add body parameter
-  body = {
-    ...body,
-  };
+export const makeRequest = async (type, path, body = null, options = {}) => {
+  console.log("path is ====", path)
+  try {
+    // Retrieve token from cookies
+    const cookiesSid = Cookies.get('connect.sid');
+    const token = Cookies.get('auth-token');
 
-  const connectSid = Cookies.get("connect.sid");
-  console.log("connect.sid cookie:", connectSid);
-  console.log("All cookies:", Cookies.get());
-  const config = {
-    timeout: 30000,
-    headers: {
+console.log("ssid and token is", cookiesSid, token)
+    // Setup headers
+    const headers = {
       ...options.headers,
       Authorization: `Bearer ${token}`,
-      "connect.sid": connectSid,  // Include connect.sid cookie
-    },
-    ...options,
-  };
+      'connect.sid': cookiesSid ? cookiesSid : null,
+    };
 
-  const res = instance[type](path, body, config)
-    .then(function (response) {
-      return response;
-    })
-    .catch(function (error) {
-      console.log(error, "error");
+    // If the body is an instance of FormData, set the appropriate Content-Type
+    if (body instanceof FormData) {
+      headers['Content-Type'] = 'multipart/form-data';
+    } else if (body) {
+      headers['Content-Type'] = 'application/json';
+    }
 
-      if (error.code === 401) {
-        // ToastNotification("error", "Session expired. Please login again");
-      } else if (error.code === "ECONNABORTED") {
-        // ToastNotification("error", "Request timed out");
-      }
-      return error;
-    });
-  return res;
+    // Create the config object
+    const config = {
+      timeout: 30000,
+      headers,
+      ...options,
+    };
+
+    let response;
+
+    // Perform the request based on the type
+    switch (type.toUpperCase()) {
+      case 'GET':
+        response = await instance.get(path, config);
+        break;
+      case 'POST':
+        response = await instance.post(path, body, config);
+        break;
+      case 'PUT':
+        response = await instance.put(path, body, config);
+        break;
+      case 'DELETE':
+        response = await instance.delete(path, config);
+        break;
+      default:
+        throw new Error('Unsupported request type');
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Error making request:', error);
+
+    // Handle specific errors
+    if (error.response?.status === 401) {
+      // Handle unauthorized error, such as refreshing tokens or redirecting
+      // ToastNotification('error', 'Session expired. Please login again');
+    } else if (error.code === 'ECONNABORTED') {
+      // Handle timeout
+      // ToastNotification('error', 'Request timed out');
+    }
+
+    throw error; // Re-throw error after logging/handling
+  }
 };
 
+
+// Optional: Request interceptor for adding authentication or other common headers
 instance.interceptors.request.use(
   (config) => {
-    // const username = "ck_b25676b8d09eb93723809e56bcc70767830ebbe4";
-    // const password = "cs_d70f7243406cc40887939eb2df4bb4bf0515ab4b";
-    config.auth = {
-      // username,
-      // password,
-    };
+    // Example: Add basic auth or other configuration if needed
+    // config.auth = { username, password };
     return config;
   },
   (error) => {
@@ -64,19 +92,19 @@ instance.interceptors.request.use(
   }
 );
 
+// Optional: Response interceptor for handling global responses or errors
 instance.interceptors.response.use(
-  function (response) {
+  (response) => {
     return response.data;
   },
-  function (error) {
-    if (error?.response?.status === 401) {
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle 401 errors, e.g., redirect or clear local storage
       // window.location.reload(true);
-      // window.location.href = "/";
+      // window.location.href = '/';
       // window.localStorage.clear();
     }
-    const code = error?.response && error?.response?.status;
-    return Promise.reject({
-      code,
-    });
+    const code = error.response?.status;
+    return Promise.reject({ code });
   }
 );
