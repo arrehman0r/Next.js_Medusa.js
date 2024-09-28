@@ -98,13 +98,7 @@ instance.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle 401 errors, e.g., redirect or clear local storage
-      // window.location.reload(true);
-      // window.location.href = '/';
-      // window.localStorage.clear();
-    }
-    const code = error.response?.status;
-    return Promise.reject({ code });
+    // Return the error message so it can be handled by the calling component
+    return Promise.reject(error.response?.data?.error || "Something went wrong");
   }
-);
+)

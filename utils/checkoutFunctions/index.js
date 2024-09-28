@@ -6,10 +6,15 @@ import { useSelector } from "react-redux";
 
 export const fetchShippingMethod = async (dispatch) => {
   const region_id = REGIOD_ID;
-  const res = await getShippingMethod(region_id);
-  console.log("getShippingMethod res", res?.shipping_options);
-  if (res?.shipping_options) {
-    dispatch(utilsActions.setShippingMethod(res.shipping_options));
+  try {
+    const res = await getShippingMethod(region_id);
+    console.log("getShippingMethod res", res?.shipping_options);
+    if (res?.shipping_options) {
+      dispatch(utilsActions.setShippingMethod(res.shipping_options));
+    }
+  }
+  catch (error) {
+    console.log(error)
   }
 };
 
@@ -36,13 +41,13 @@ export const triggerFacebookPixelEventAsync = (orderId, items, orderAmount) => {
   return new Promise((resolve, reject) => {
     console.log("Attempting to trigger Facebook Pixel event");
     console.log("window.fbq exists:", !!window.fbq);
-    
+
     if (typeof window !== 'undefined' && window.fbq) {
       console.log("Inside fbq condition");
       console.log("Order ID:", orderId);
       console.log("Items:", items);
       console.log("Order Amount:", orderAmount);
-      
+
       try {
         window.fbq('track', 'Purchase', {
           currency: 'PKR',
@@ -64,9 +69,9 @@ export const triggerFacebookPixelEventAsync = (orderId, items, orderAmount) => {
   });
 };
 
-export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, customerDetails, shippingMethod, user, router) => {
+export const handleCreateOrder = async (e, dispatch, store, cartId, cartList, customerDetails, shippingMethod, user, router) => {
   dispatch(utilsActions.setLoading(true));
-  
+
   console.log("handleCreateOrder called");
   e.preventDefault();
   const lineItems = cartList.map(item => ({
@@ -77,13 +82,13 @@ export const handleCreateOrder = async (e, dispatch, store,cartId, cartList, cus
   await Promise.all(lineItems.map(item => addLineItem(cartId, item)));
   const orderDetails = {
     email: user?.email || customerDetails.email || "info@partyshope.com",
-    customer_id: user?.id || "", 
+    customer_id: user?.id || "",
     shipping_address: {
       address_1: customerDetails.address1,
       address_2: customerDetails?.address2 || "",
       country_code: "pk",
       first_name: customerDetails?.firstName,
-      last_name:  customerDetails?.lastName || "",
+      last_name: customerDetails?.lastName || "",
       phone: customerDetails?.phone,
       city: customerDetails?.city
     },

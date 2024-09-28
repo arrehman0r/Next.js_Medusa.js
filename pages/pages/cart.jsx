@@ -25,10 +25,14 @@ function Cart(props) {
     }, [])
     const fetchShippingMethod = async () => {
         const region_id = REGIOD_ID
+        try{ 
         const res = await getShippingMethod(region_id)
         console.log("getShippingMethod res", res?.shipping_options)
         if (res?.shipping_options) {
             dispatch(utilsActions.setShippingMethod(res.shipping_options));
+        }}
+        catch(error){
+            console.log(error)
         }
     }
 
